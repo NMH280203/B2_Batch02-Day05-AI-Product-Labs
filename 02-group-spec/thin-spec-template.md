@@ -1,76 +1,124 @@
-# Template — Thin SPEC Cuối Day 05
+# Thin SPEC Cuối Day 05 — Chat món → quán + LLM orchestrator (`be/`)
 
 Thin SPEC không phải PRD đầy đủ. Đây là bản cam kết đủ rõ để sáng Day 06 nhóm build ngay.
 
+> **Chú thích:** `*...*` = nhóm tự điền thật trước nộp.
+
 ## 1. Track, product/app và user
 
-**Track:**  
-**Product/app thật:**  
-**User cụ thể:**  
-**Nhóm có phải user thật không? Nếu không, khác ở đâu?**  
+**Track:** Food / Super-app  
+**Product/app thật:** GrabFood *(tham chiếu UX/evidence; API đặt hàng thật không nằm trong slice)*  
+**User cụ thể:** Người 22–40, dùng app đặt ăn **≥ 2 lần/tuần**; biết cảm giác/nhu cầu bữa (healthy, nhẹ, rẻ, nhóm, gần…) nhưng khó map sang món + quán cụ thể.  
+**Nhóm có phải user thật không? Nếu không, khác ở đâu?** *\[Có / Một phần — mô tả: vd. nhóm đặt Grab 3–5 lần/tuần nhưng demo dùng catalog mock HCM\]*
 
 ## 2. Evidence summary
 
 | Evidence | Nguồn | User/pain nói lên điều gì? | SPEC phải đổi gì? |
 |---|---|---|---|
-|  |  |  |  |
-|  |  |  |  |
-|  |  |  |  |
+| Search "healthy" lệch budget | *\[Self-use — link screenshot\]* | Keyword thiếu ngữ cảnh | `suggest_dishes` multi-slot |
+| "Không biết ăn gì" | *\[Review URL\]* | Paralysis | Orchestrator + clarify |
+| Có món trong đầu, chưa chọn quán | *\[Self-use note\]* | Quán là bước 2 | `suggest_restaurants(dish_id)` |
+| "Gần X" là một phần câu | *\[Phỏng vấn / self-use\]* | Không bắt buộc GPS | `resolve_location` conditional |
+| Chatbot chung hay hallucination | Competitor / analog | Cần catalog + tool | `be/data/*.json` + handlers |
 
 ## 3. Pain statement
 
 ```text
-User [ai] đang gặp khó ở [bước/workflow],
-vì [nguyên nhân hoặc điểm gãy],
-dẫn tới [hậu quả].
-Bằng chứng chính là [quote/screenshot/review/observation].
+User người đặt đồ ăn qua app thường xuyên đang gặp khó khi chuyển từ
+"ngữ cảnh bữa ăn tôi muốn" (mood, budget, dietary, số người, gần hay không…)
+sang "món cụ thể và quán có món đó",
+
+vì app chủ yếu search keyword/filter rời rạc và gợi ý theo lịch sử đơn cũ,
+không có orchestrator hiểu intent và không gợi ý theo thứ tự món → quán,
+
+dẫn tới xem mãi không đặt, gợi ý lệch (healthy đắt, chay sai), hoặc chọn quán không có món phù hợp.
+
+Bằng chứng chính là *\[self-use observation + URL review + ngày phỏng vấn \*/\*/2026\]*.
 ```
 
 ## 4. Build slice
 
 ```text
-Cho [user] đang [task/workflow],
-prototype sẽ dùng AI để [augment/automate hành động hẹp],
-tạo ra [output],
-và xử lý [failure mode] bằng [mitigation].
+Cho người dùng app đặt đồ ăn mô tả ngữ cảnh tìm kiếm bằng ngôn ngữ tự nhiên,
+
+prototype FastAPI (be/) sẽ dùng LLM orchestrator (agents/orchestrator.py) để
+  (1) trích xuất ngữ cảnh và chọn tool_plan phù hợp,
+  (2) augment gợi ý 2 món (food_agent + tools/handlers/food_search.py),
+  (3) sau khi user chọn món — augment gợi ý 2 quán có món đó
+      (restaurant_agent; tools/handlers/places.py nếu intent_nearby),
+
+tạo ra (qua POST /api/chat SSE):
+  event context (slots + tool_plan),
+  event dishes (2 món + lý do),
+  event restaurants (2 quán + lý do),
+
+và xử lý thiếu ngữ cảnh / parse sai dietary / quán không có món
+bằng clarify_context, user xác nhận context, correction, disclaimer, không auto-order.
 ```
 
 ## 5. Auto/Aug decision
 
 Chọn một:
 
-- [ ] **Augmentation:** AI gợi ý/draft/phân loại, user quyết cuối.
+- [x] **Augmentation:** AI gợi ý/draft/phân loại, user quyết cuối.
 - [ ] **Conditional automation:** AI tự làm trong case hẹp; case mơ hồ/rủi ro chuyển người.
 - [ ] **Automation:** AI tự quyết và tự hành động.
 
-**Lý do chọn:**  
-**Human role:** reviewer / decider / trainer / rescuer / none  
+**Lý do chọn:** Dietary và chọn quán có rủi ro; user phải xác nhận `UserContext` + chọn `dish_id` + chọn quán. LLM không được tự đặt hàng.  
+**Human role:** **decider** + **corrector** (+ **reviewer** đọc disclaimer)
 
 ## 6. Four paths
 
-| Path | Prototype phải thể hiện gì? |
-|---|---|
-| Happy |  |
-| Low-confidence |  |
-| Failure |  |
-| Correction |  |
+| Path | Prototype phải thể hiện gì? | Ngữ cảnh test (ID) |
+|---|---|---|
+| Happy | Đủ context → `context` event → `dishes` (2) → gửi `selected_dish_id` → `restaurants` (2). | C1, C2 |
+| Low-confidence | "Ăn gì đó ngon" → `clarify` event, chưa `dishes`. | C11 |
+| Failure | Chay + 50k nhưng `dishes` có món thịt (test filter) hoặc quán không có `dish_id`. | C10 |
+| Correction | Message "không đúng ý" / đổi context → chạy lại `suggest_dishes` hoặc `suggest_restaurants`. | C3 + correction |
 
 ## 7. Failure mode nguy hiểm nhất
 
 ```text
-Nếu user [trigger],
-AI có thể [failure],
-hậu quả là [impact].
-Prototype sẽ xử lý bằng [ask again / show source / human review / undo / fallback].
-Owner kiểm thử path này là [tên thành viên].
+Nếu user nêu dietary (chay, dị ứng, không cay…) trong ngữ cảnh
+nhưng orchestrator parse sai hoặc food_search bỏ sót filter,
+
+AI có thể gợi ý món không phù hợp,
+hậu quả là đặt nhầm hoặc mất tin (rủi ro sức khỏe với dị ứng).
+
+Prototype xử lý bằng:
+- event context hiển thị tool_plan + slots trước dishes;
+- rule lọc dietary_tags trên be/data/dishes.json;
+- clarify nếu dietary mơ hồ;
+- disclaimer trong prompt/stream;
+- correction → re-run suggest_dishes;
+- không auto-order.
+
+Owner kiểm thử path này là *\[tên thành viên\]*.
 ```
 
 ## 8. Owner plan cho sáng Day 06
 
 | Thành viên | Việc phụ trách | Bằng chứng cần có trong repo |
 |---|---|---|
-|  | Research / evidence |  |
-|  | SPEC |  |
-|  | Prototype |  |
-|  | Test / failure path |  |
-|  | Demo script / repo |  |
+| *\[Tên\]* | Research / evidence — screenshot + URL review thật | `02-group-spec/evidence-pack-template.md` |
+| *\[Tên\]* | SPEC + `prompt/system_prompt.py` | `thin-spec-template.md`, `be/prompt/` |
+| *\[Tên\]* | `orchestrator.py`, `tools/executor.py`, `routers/chat.py` | `be/agents/`, `be/routers/chat.py` |
+| *\[Tên\]* | `food_agent`, `food_search`, `data/dishes.json` | `be/agents/food_agent.py`, `be/data/` |
+| *\[Tên\]* | `restaurant_agent`, `places` handler | `be/agents/restaurant_agent.py`, `be/tools/handlers/places.py` |
+| *\[Tên\]* | Test 4 paths + failure C10 | *\[file checklist test / Postman collection\]* |
+| *\[Tên\]* | Demo script + README chạy `uvicorn` | `02-group-spec/demo-script.md`, repo README |
+
+## 9. Map triển khai `be/` (tham chiếu Day 06)
+
+| Thành phần | Đường dẫn |
+|---|---|
+| Entry | `be/main.py` |
+| Chat SSE | `be/routers/chat.py` → `POST /api/chat` |
+| Catalog | `be/routers/food.py`, `be/routers/restaurants.py` |
+| Orchestrator | `be/agents/orchestrator.py` |
+| Món trước | `be/agents/food_agent.py` |
+| Quán sau | `be/agents/restaurant_agent.py` |
+| Tools | `be/tools/definitions.py`, `executor.py`, `handlers/*` |
+| LLM | `be/services/llm.py` |
+| Data | `be/data/dishes.json`, `restaurants.json` |
+| Env | `be/.env` — *\[ANTHROPIC_API_KEY, GOOGLE_PLACES_API_KEY, …\]* |
