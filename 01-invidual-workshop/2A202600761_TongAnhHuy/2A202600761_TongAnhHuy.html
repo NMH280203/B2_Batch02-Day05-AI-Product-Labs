@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giải phẫu Moni của MoMo: App → Flow → Path yếu → Sửa</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: #333333;
+            background-color: #ffffff; /* Nền đồng nhất */
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 30px;
+        }
+        h1, h2, h3, h4 {
+            color: #2c3e50;
+        }
+        h1 {
+            border-bottom: 3px solid #add8e6; /* Màu xanh dương nhạt */
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        h2 {
+            border-bottom: 2px solid #add8e6;
+            padding-bottom: 5px;
+            margin-top: 40px;
+        }
+        h3 {
+            margin-top: 30px;
+        }
+        blockquote {
+            border-left: 5px solid #add8e6;
+            margin: 15px 0;
+            padding: 10px 20px;
+            background-color: #f8fbff;
+            color: #555;
+            font-style: italic;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #e0e0e0;
+            padding: 12px 15px;
+            text-align: left;
+        }
+        th {
+            background-color: #add8e6;
+            color: #333;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #fdfdfd;
+        }
+        pre {
+            background-color: #f8fbff;
+            border: 1px solid #cce4f7;
+            border-left: 4px solid #add8e6;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-family: 'Courier New', Courier, monospace;
+            line-height: 1.4;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9em;
+        }
+        hr {
+            border: 0;
+            height: 1px;
+            background: #add8e6;
+            margin: 40px 0;
+        }
+        ul {
+            margin-bottom: 15px;
+        }
+        li {
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Giải phẫu Moni của MoMo: App → Flow → Path yếu → Sửa</h1>
+
+    <h2>Phạm vi thực hiện</h2>
+    <p>Bài này chỉ phân tích <strong>Moni của MoMo</strong>, không phân tích Vietnam Airlines NEO hay V-App V-AI.</p>
+    <p>Mục tiêu là thực hiện đúng yêu cầu workshop:</p>
+    <blockquote>Mổ sản phẩm AI thật: app → flow → path yếu → sửa.</blockquote>
+    <p>Đầu ra gồm:</p>
+    <ul>
+        <li>Một bản phân tích <strong>as-is / to-be</strong>.</li>
+        <li>Một <strong>path yếu nhất</strong> được chọn để sửa.</li>
+        <li>Một câu <strong>product decision</strong>.</li>
+        <li>Không liệt kê bug rời rạc.</li>
+    </ul>
+
+    <hr>
+
+    <h2>1. Chọn app để dùng thử</h2>
+    <h3>App được chọn</h3>
+    <p><strong>MoMo — Moni</strong></p>
+
+    <h3>Mô tả ngắn</h3>
+    <p>Moni là trợ lý tài chính trong ứng dụng MoMo. Vai trò chính của Moni là hỗ trợ người dùng hiểu tình hình chi tiêu, phân tích giao dịch và gợi ý cách quản lý tài chính cá nhân ngay trong app.</p>
+
+    <h3>Promise của sản phẩm</h3>
+    <p><strong>Promise chính của Moni:</strong></p>
+    <blockquote>Giúp người dùng hiểu tiền của mình đang đi đâu, phân tích chi tiêu cá nhân và đưa ra gợi ý tài chính dựa trên dữ liệu trong MoMo.</blockquote>
+    <p>Nói ngắn gọn hơn:</p>
+    <blockquote>Moni hứa sẽ biến dữ liệu giao dịch trong MoMo thành insight tài chính dễ hiểu và có thể hành động được.</blockquote>
+
+    <hr>
+
+    <h2>2. Dùng thử: 2–3 query thật</h2>
+    <p>Phần này mô phỏng 3 tình huống người dùng thật có thể hỏi Moni khi muốn quản lý chi tiêu cá nhân.</p>
+
+    <h3>Query 1: “Tôi nên tiết kiệm bao nhiêu mỗi tháng với lương 8 triệu?”</h3>
+    <h4>Kỳ vọng của user</h4>
+    <p>Người dùng kỳ vọng Moni tính toán được hạn mức hợp lý dựa trên quy tắc tài chính cá nhân và gợi ý công cụ thiết lập ngân sách ngay trên app.</p>
+    <h4>Thực tế diễn ra</h4>
+    <p>Moni gợi ý nên tiết kiệm từ 10% – 20% (800.000đ – 1.600.000đ) kèm lời khuyên phân bổ theo chi phí cố định/linh hoạt. Sau đó hỏi người dùng có muốn đặt mục tiêu với các con số này không.</p>
+    <h4>Điểm gãy</h4>
+    <p>Không có điểm gãy lớn. Tuy nhiên, thiếu thao tác (Quick Action) để người dùng bấm vào tạo ngân sách ngay lập tức thay vì phải chat qua lại.</p>
+
+    <hr>
+
+    <h3>Query 2: “Tôi đang tiêu quá nhiều ở khoản nào?”</h3>
+    <h4>Kỳ vọng của user</h4>
+    <p>Người dùng kỳ vọng Moni chỉ ra nhóm chi tiêu lớn nhất trong tháng (ví dụ: Ăn uống chiếm 60%) và đưa ra nhận xét.</p>
+    <h4>Thực tế diễn ra</h4>
+    <p>Moni chỉ trả về "Tổng chi tiêu: 95.000đ" và "Số giao dịch: 3", sau đó gợi ý người dùng tự đi xem báo cáo chi tiêu theo nhóm.</p>
+    <h4>Điểm gãy</h4>
+    <p>Moni có dữ liệu nhưng không tạo ra được insight. Trả lời trật trọng tâm (hỏi khoản nào lớn nhất lại trả về tổng tiền). Người dùng bị kẹt, phải tự thoát ra xem báo cáo thủ công.</p>
+
+    <hr>
+
+    <h3>Query 3: “Làm sao để vay 10 triệu trên mono ngay bây giờ?”</h3>
+    <h4>Kỳ vọng của user</h4>
+    <p>Người dùng gõ sai typo ("mono" thay vì "momo") nhưng hệ thống vẫn nhận diện được intent (vay tiền) và điều hướng sang sản phẩm Ví Trả Sau hoặc FastMoney.</p>
+    <h4>Thực tế diễn ra</h4>
+    <p>Moni từ chối phục vụ: "Mình chỉ có thể hỗ trợ trong phạm vi sản phẩm MoMo."</p>
+    <h4>Điểm gãy</h4>
+    <p>Hệ thống NLU yếu (không bắt được typo) và thiếu luồng Handoff/Cross-sell cho các dịch vụ lõi. Người dùng nhận câu trả lời ngõ cụt.</p>
+
+    <hr>
+
+    <h2>3. Vẽ flow as-is</h2>
+    <p>Phần này mô tả 4 luồng chính khi user tương tác với Moni:</p>
+
+    <h3>3.1. Happy path</h3>
+    <p><strong>Tình huống:</strong> Hỏi về hạn mức tiết kiệm.</p>
+<pre>User hỏi mức tiết kiệm với lương 8 triệu
+        ↓
+Moni phân tích theo quy tắc tài chính
+        ↓
+Moni đề xuất 800.000đ – 1.600.000đ
+        ↓
+Moni hỏi user có muốn đặt mục tiêu tiết kiệm không
+        ↓
+User nhận được tư vấn đúng trọng tâm</pre>
+    <p><strong>Đánh giá:</strong> Tốt, nhưng thiếu Action Card để chốt tác vụ nhanh.</p>
+
+    <h3>3.2. Low-confidence path</h3>
+    <p><strong>Tình huống:</strong> Hỏi tìm tên người chuyển khoản nhưng không có thật ("Tú").</p>
+<pre>User hỏi tìm người tên Tú tháng trước
+        ↓
+Moni query DB, báo không tìm thấy
+        ↓
+Moni đề nghị: "Cung cấp thêm thông tin họ tên..."
+        ↓
+User phải tự gõ lại từ đầu (không có filter/gợi ý)</pre>
+
+    <h3>3.3. Failure path</h3>
+    <p><strong>Tình huống:</strong> Hỏi "Làm sao để vay 10 triệu trên mono".</p>
+<pre>User hỏi vay tiền (kèm typo)
+        ↓
+Moni chạm guardrail / không map được intent
+        ↓
+Moni trả Fallback text: "Không hỗ trợ ngoài MoMo"
+        ↓
+User kẹt hoàn toàn, đứt luồng chat.</pre>
+
+    <h3>3.4. Correction path</h3>
+    <p><strong>Tình huống:</strong> Hỏi về khoản chi lớn nhất nhưng Moni trả lời chung chung.</p>
+<pre>User hỏi: "Tôi đang tiêu quá nhiều ở khoản nào?"
+        ↓
+Moni trả lời tổng chi tiêu 95.000đ
+        ↓
+User (muốn sửa): Phải gõ lại "Phân tích từng nhóm chi tiêu đi"
+        ↓
+Moni mới tiếp tục xử lý</pre>
+    <p><strong>Đánh giá:</strong> Điểm user bị kẹt rất rõ vì Moni không tự động phân nhóm chi tiêu, ép user phải nghĩ cách prompt lại.</p>
+
+    <hr>
+
+    <h2>4. Đánh dấu user kẹt ở đâu</h2>
+    <p>Các điểm user dễ bị kẹt nhất trong flow của Moni:</p>
+    <table>
+        <thead>
+            <tr>
+                <th>Vị trí trong flow</th>
+                <th>User muốn gì</th>
+                <th>Moni dễ làm gì</th>
+                <th>Vì sao user kẹt</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Hỏi khoản chi lớn nhất</td>
+                <td>Muốn insight cá nhân (nhóm chi tiêu)</td>
+                <td>Trả về tổng tiền chay</td>
+                <td>Không biết nhóm nào chi nhiều nhất, phải tự mở report.</td>
+            </tr>
+            <tr>
+                <td>Hỏi intent kinh doanh (Vay)</td>
+                <td>Tìm giải pháp tài chính</td>
+                <td>Chặn luồng vì typo</td>
+                <td>Ngõ cụt, không có button Handoff.</td>
+            </tr>
+            <tr>
+                <td>Sửa câu hỏi</td>
+                <td>Muốn Moni đi vào chi tiết</td>
+                <td>Trả lời chung chung</td>
+                <td>Phải tự gõ lại lệnh từ đầu.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <hr>
+
+    <h2>5. Chọn path yếu nhất</h2>
+    <h3>Path yếu nhất được chọn</h3>
+    <blockquote>Câu hỏi yêu cầu trích xuất Insight phân loại: "Tôi đang tiêu quá nhiều ở khoản nào?"</blockquote>
+    <h3>Vì sao đây là path yếu nhất?</h3>
+    <p>Đây là path yếu nhất vì nó đi ngược lại Promise của một "Trợ thủ AI". Moni có dữ liệu giao dịch thật nhưng lại chỉ đóng vai trò như một bộ lọc SQL sơ sài (sum tiền), đẩy việc khó (phân tích) lại cho người dùng tự đi xem báo cáo.</p>
+
+    <hr>
+
+    <h2>6. Sửa path yếu nhất</h2>
+    <h3>Mục tiêu sửa</h3>
+    <p>Biến câu trả lời của Moni từ:</p>
+    <blockquote>Dữ liệu thô (Tổng chi tiêu).</blockquote>
+    <p>Thành:</p>
+    <blockquote>Insight tài chính cá nhân có nguồn dữ liệu, bóc tách được danh mục cao nhất và đính kèm Action Card (Hành động).</blockquote>
+
+    <h3>6.1. To-be flow</h3>
+<pre>User hỏi:
+"Tôi đang tiêu quá nhiều ở khoản nào?"
+        ↓
+Moni phân tích dữ liệu giao dịch:
+Xác định nhóm chi tiêu (Category) có tỷ trọng cao nhất
+        ↓
+Hiển thị Insight (Nguồn dữ liệu + Insight tỷ trọng)
+        ↓
+Hiển thị Action Card
+        ↓
+User chọn hành động
+        ↓
+Hệ thống thực thi</pre>
+
+    <h3>6.2. Câu trả lời to-be khi đủ dữ liệu</h3>
+    <p>Moni nên trả lời:</p>
+    <blockquote>Khoản chi lớn nhất tháng này của bạn là <strong>Ăn uống: 65% (1.500.000đ)</strong>. Khoản này đang tăng 25% so với tháng trước.</blockquote>
+    <p>Đi kèm Component:</p>
+    <ul>
+        <li><strong>Source:</strong> <em>(Dựa trên 23 giao dịch từ 01/06 – 30/06)</em></li>
+        <li><strong>Button:</strong> <code>[Xem chi tiết]</code> <code>[Đặt ngân sách ăn uống]</code> <code>[Nhắc tôi khi vượt hạn mức]</code></li>
+    </ul>
+
+    <h3>6.3. Câu trả lời to-be khi thiếu dữ liệu (Handoff)</h3>
+    <p>Nếu Moni chưa đủ data:</p>
+    <blockquote>Moni hiện chưa có đủ dữ liệu giao dịch tháng này để xác định chính xác nhóm chi tiêu lớn nhất của bạn.</blockquote>
+    <p>Đi kèm Button:</p>
+    <p><code>[Xem báo cáo chi tiêu]</code> <code>[Liên hệ hỗ trợ]</code></p>
+
+    <hr>
+
+    <h2>7. Các thay đổi UX đề xuất</h2>
+    <h3>7.1. Luôn hiển thị source dữ liệu</h3>
+    <p>Thêm dòng text nhỏ: <em>“Phân tích dựa trên 23 giao dịch từ 01/06 – 30/06”</em> để tăng độ tin cậy.</p>
+
+    <h3>7.2. Thêm button hành động nhanh (Quick Actions)</h3>
+    <p>Không bắt user gõ phím. Cung cấp sẵn các nút: <code>[Đặt ngân sách]</code> hoặc <code>[Xem chi tiết]</code>.</p>
+
+    <h3>7.3. Tính năng Hoàn tác (Undo)</h3>
+    <p>Nếu user bấm nhầm nút tạo ngân sách từ đề xuất, Moni cần hiện:</p>
+    <blockquote>Đã tạo ngân sách ăn uống 2.000.000đ/tháng. <code>[Hoàn tác]</code></blockquote>
+
+    <h3>7.4. Có correction log</h3>
+    <p>Hệ thống cần học từ user:</p>
+    <blockquote>
+        User: "Tôi muốn biết nhóm chi tiêu cao nhất, không phải tổng chi tiêu."<br>
+        Moni: "Đã ghi nhận. Lần sau khi bạn hỏi, Moni sẽ ưu tiên hiển thị nhóm chi tiêu đứng đầu."
+    </blockquote>
+
+    <hr>
+
+    <h2>8. Sketch As-is / To-be</h2>
+    <h3>8.1. Sketch As-is (User kẹt)</h3>
+<pre>User hỏi:
+"Tôi đang tiêu quá nhiều ở khoản nào?"
+        ↓
+Moni truy xuất DB
+        ↓
+Moni trả lời:
+"Tổng chi tiêu: 95.000đ. Số giao dịch: 3"
+        ↓
+🛑 USER KẸT:
+Không biết khoản nào chiếm tỷ trọng lớn nhất. 
+User phải hỏi lại hoặc thoát ra tự xem report.</pre>
+
+    <h3>8.2. Sketch To-be (Insight + Action)</h3>
+<pre>User hỏi:
+"Tôi đang tiêu quá nhiều ở khoản nào?"
+        ↓
+Moni phân tích giao dịch theo Category
+        ↓
+Moni trả lời bằng Insight Card:
+- Nguồn: "Dựa trên 23 giao dịch"
+- Insight: "Ăn uống lớn nhất: 65%"
+        ↓
+Moni hiển thị Action Card:
+[Đặt ngân sách ăn uống] [Xem chi tiết]
+        ↓
+✅ LƯU THÔNG LUỒNG:
+User bấm nút -&gt; Hệ thống thực thi ngay.</pre>
+
+    <hr>
+
+    <h2>9. Product decision</h2>
+    <h3>Product decision đầy đủ</h3>
+    <blockquote>Thay vì chỉ trả về text dữ liệu thô (tổng tiền), Moni phải chuyển đổi output sang dạng <strong>Insight + Action Card</strong>. Hệ thống bắt buộc phải tính toán danh mục chi tiêu lớn nhất, hiển thị nguồn dữ liệu tham chiếu (Source), hỗ trợ hoàn tác (Undo) và điều hướng (Handoff) bằng nút bấm để biến insight thành hành động lập tức, giảm số bước hội thoại.</blockquote>
+
+    <h3>Product decision ngắn gọn</h3>
+    <blockquote>Triển khai Insight + Action Card (kèm Source, Undo, Handoff) để nâng Moni từ chatbot báo cáo tổng tiền thành AI Assistant tạo chuyển đổi (conversion) trực tiếp.</blockquote>
+
+    <hr>
+
+    <h2>10. Kết luận</h2>
+    <p>Moni đang nắm giữ lợi thế tuyệt đối về Data (nằm trong ví MoMo), nhưng đang bỏ lỡ cơ hội bứt phá vì chỉ dừng ở mức truy xuất dữ liệu cơ bản (Text-based report) thay vì phân tích Insight.</p>
+    <p>Bằng cách sửa path yếu nhất, áp dụng framework <code>Intent -&gt; Tính toán Insight -&gt; Action Card</code>, Moni không chỉ giải phóng người dùng khỏi việc kẹt luồng hội thoại mà còn trực tiếp tăng các chỉ số business như tỷ lệ tạo ngân sách, mở Ví Trả Sau, tạo ra giá trị vòng lặp (retention) thực sự cho hệ sinh thái.</p>
+
+</body>
+</html>
