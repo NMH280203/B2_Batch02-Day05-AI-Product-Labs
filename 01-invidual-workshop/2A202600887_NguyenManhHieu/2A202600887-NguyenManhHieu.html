@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UX Workshop - Moni MoMo</title>
+  <style>
+    :root{
+      --blue:#214bbb; --light:#eef4ff; --text:#111827; --muted:#667085;
+      --border:#e5e7eb; --red:#dc2626; --green:#16a34a; --yellow:#f59e0b;
+      --bg:#f8fafc; --card:#fff;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text);line-height:1.55}
+    .page{max-width:1180px;margin:auto;padding:42px 28px 70px}
+    .eyebrow{letter-spacing:4px;color:#64748b;font-weight:800;text-transform:uppercase}
+    h1{font-size:42px;line-height:1.12;margin:10px 0 12px;color:#0f172a}
+    h2{margin:8px 0 14px}
+    h3{margin:0 0 8px}
+    .subtitle{font-size:19px;color:#475569;margin-bottom:28px}
+    .section{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:26px;margin:22px 0;box-shadow:0 8px 24px rgba(15,23,42,.05)}
+    .badge{display:inline-block;background:var(--light);color:var(--blue);font-weight:800;border-radius:999px;padding:8px 15px;letter-spacing:1.4px;text-transform:uppercase;font-size:14px;margin-bottom:12px}
+    .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+    .grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+    .card{border:1px solid var(--border);border-radius:14px;padding:18px;background:#fff}
+    .muted{color:var(--muted)}
+    table{width:100%;border-collapse:collapse;margin-top:12px;border:1px solid var(--border);border-radius:12px;overflow:hidden}
+    th,td{padding:14px;border-bottom:1px solid var(--border);vertical-align:top;text-align:left}
+    th{background:#f1f5f9;color:#334155;font-size:14px;text-transform:uppercase;letter-spacing:.7px}
+    tr:last-child td{border-bottom:none}
+    .pill{display:inline-block;padding:4px 10px;border-radius:999px;font-size:13px;font-weight:700;background:#f1f5f9;color:#334155}
+    .red{background:#fee2e2;color:#991b1b}.green{background:#dcfce7;color:#166534}.yellow{background:#fef3c7;color:#92400e}.blue{background:#dbeafe;color:#1e40af}
+    .flow{background:#f8fafc;border:1px solid var(--border);border-left:6px solid var(--blue);border-radius:14px;padding:16px;margin:12px 0;white-space:pre-line;font-family:'Courier New',monospace;font-size:15px}
+    .flow.danger{border-left-color:var(--red);background:#fff7f7}
+    .flow.good{border-left-color:var(--green);background:#f7fff9}
+    .flow.warn{border-left-color:var(--yellow);background:#fffdf4}
+    .callout{padding:18px;border-radius:14px;border-left:7px solid var(--blue);background:#eef4ff;margin-top:14px}
+    .callout.red{border-left-color:var(--red);background:#fff1f2}
+    .callout.green{border-left-color:var(--green);background:#f0fdf4}
+    .callout.yellow{border-left-color:var(--yellow);background:#fffbeb}
+    .drop{color:var(--red);font-weight:800}
+    .decision{font-size:22px;font-weight:800;color:#0f172a}
+    .footer{text-align:center;margin-top:30px;color:#64748b;font-size:14px}
+    @media(max-width:900px){h1{font-size:32px}.grid,.grid3{grid-template-columns:1fr}.page{padding:28px 16px}}
+  </style>
+</head>
+<body>
+  <main class="page">
+    <div class="eyebrow">Workshop cá nhân</div>
+    <h1>Mổ sản phẩm AI thật: Moni MoMo → Flow → Path yếu → Sửa</h1>
+    <p class="subtitle">Bài trình bày đủ yêu cầu của slide: dùng thử, vẽ flow, chọn path yếu nhất và đề xuất sửa.</p>
+
+    <section class="section">
+      <span class="badge">1 · Chọn app & đọc promise</span>
+      <h2>App: Moni trong MoMo</h2>
+      <div class="grid">
+        <div class="card">
+          <h3>Promise</h3>
+          <p>Moni được kỳ vọng là trợ lý tài chính cá nhân trong MoMo, giúp người dùng phân tích chi tiêu, hỏi đáp về giao dịch và hiểu tình hình tài chính của mình.</p>
+        </div>
+        <div class="card">
+          <h3>Phạm vi test</h3>
+          <p>Test các câu hỏi thật liên quan đến chi tiêu cá nhân, quỹ nhóm trọ và giao dịch tài khoản ngân hàng liên kết thông qua MoMo.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <span class="badge">2 · Dùng thử 2–3 query thật</span>
+      <h2>Kỳ vọng vs thực tế</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Query thật</th>
+            <th>Kỳ vọng</th>
+            <th>Thực tế / điểm gãy</th>
+            <th>Path</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b>“Tháng này tôi đã chi bao nhiêu tiền cho tiền trọ?”</b></td>
+            <td>Moni nhận diện được tiền nhà, điện nước, mạng, khoản chia cho bạn cùng phòng.</td>
+            <td>Nếu giao dịch nằm trong quỹ nhóm hoặc ghi chú không rõ, Moni khó xác định đó là tiền trọ.</td>
+            <td><span class="pill yellow">Low-confidence</span></td>
+          </tr>
+          <tr>
+            <td><b>“Chi tiêu trong quỹ nhóm trọ tháng này là bao nhiêu?”</b></td>
+            <td>Moni đọc được các khoản chi trong quỹ nhóm như điện, nước, đồ dùng chung, tiền ăn.</td>
+            <td>Moni không truy xuất/không hiểu đầy đủ giao dịch trong quỹ nhóm nên không tổng hợp chính xác.</td>
+            <td><span class="pill red">Failure</span></td>
+          </tr>
+          <tr>
+            <td><b>“Tháng này tôi đã tiêu tổng cộng bao nhiêu tiền?”</b></td>
+            <td>Moni tổng hợp cả giao dịch MoMo và giao dịch ngân hàng liên kết qua MoMo.</td>
+            <td>Moni có thể chỉ tính giao dịch trong MoMo, bỏ sót giao dịch ngân hàng liên kết hoặc giao dịch ngoài MoMo.</td>
+            <td><span class="pill red">Failure</span></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="callout red"><b>Điểm gãy chính:</b> User tưởng Moni đang phân tích toàn bộ tài chính, nhưng thực tế dữ liệu Moni truy xuất có thể chưa đầy đủ.</div>
+    </section>
+
+    <section class="section">
+      <span class="badge">3 · Vẽ flow As-Is</span>
+      <h2>Happy, Low-confidence, Failure, Correction</h2>
+      <div class="grid">
+        <div class="card">
+          <h3><span class="pill green">Happy path</span> Chi tiêu MoMo rõ ràng</h3>
+          <div class="flow good">User hỏi:
+“Tôi đã chi bao nhiêu tiền ăn uống tháng này?”
+↓
+Moni truy xuất giao dịch MoMo
+↓
+Giao dịch có merchant/category rõ ràng
+↓
+Moni tính tổng
+↓
+Trả kết quả + insight
+↓
+User hài lòng</div>
+        </div>
+        <div class="card">
+          <h3><span class="pill yellow">Low-confidence</span> Hỏi tiền trọ</h3>
+          <div class="flow warn">User hỏi:
+“Tôi đã chi bao nhiêu tiền trọ tháng này?”
+↓
+Moni tìm giao dịch liên quan
+↓
+Dữ liệu mơ hồ:
+- chuyển cho bạn cùng phòng
+- ghi chú không có chữ “trọ”
+- nằm trong quỹ nhóm
+↓
+Moni không chắc
+↓
+Có thể trả lời thiếu/chung chung
+↓
+User nghi ngờ kết quả</div>
+        </div>
+        <div class="card">
+          <h3><span class="pill red">Failure path</span> Quỹ nhóm trọ</h3>
+          <div class="flow danger">User hỏi:
+“Chi phí trong quỹ nhóm trọ tháng này là bao nhiêu?”
+↓
+Moni cần dữ liệu quỹ nhóm
+↓
+Không truy xuất hoặc không hiểu đủ dữ liệu quỹ nhóm
+↓
+Không tổng hợp được tiền điện, nước, đồ dùng chung
+↓
+Trả kết quả thiếu hoặc không có
+↓
+<span class="drop">User kẹt: không biết sửa ở đâu</span></div>
+        </div>
+        <div class="card">
+          <h3><span class="pill red">Failure path</span> Ngân hàng liên kết</h3>
+          <div class="flow danger">User hỏi:
+“Tổng chi tiêu tháng này của tôi là bao nhiêu?”
+↓
+Moni chỉ phân tích giao dịch MoMo
+↓
+Giao dịch ngân hàng liên kết không được tính đầy đủ
+↓
+Kết quả thấp hơn thực tế
+↓
+User tin vào số liệu sai
+↓
+<span class="drop">User mất niềm tin vào Moni</span></div>
+        </div>
+      </div>
+      <div class="card" style="margin-top:18px">
+        <h3><span class="pill blue">Correction path hiện tại</span></h3>
+        <div class="flow">User phát hiện kết quả thiếu
+↓
+User muốn sửa/bổ sung giao dịch
+↓
+Không có nút “gắn nhãn giao dịch”
+↓
+Không có correction log để Moni học lại
+↓
+User phải tự tính ngoài app
+↓
+Trải nghiệm AI không còn hữu ích</div>
+      </div>
+    </section>
+
+    <section class="section">
+      <span class="badge">4 · Chọn path yếu nhất</span>
+      <h2>Path yếu nhất cần sửa</h2>
+      <div class="callout red">
+        <p class="decision">Moni trả lời như thể dữ liệu đầy đủ, trong khi không truy xuất được quỹ nhóm và giao dịch ngân hàng liên kết.</p>
+        <p>Đây là path nguy hiểm nhất vì user có thể tin vào kết quả sai và hiểu sai tình hình tài chính cá nhân.</p>
+      </div>
+      <div class="grid3">
+        <div class="card">
+          <h3>Thiếu source</h3>
+          <p>Moni chưa nói rõ đang dùng nguồn dữ liệu nào: MoMo, quỹ nhóm, ngân hàng liên kết hay toàn bộ.</p>
+        </div>
+        <div class="card">
+          <h3>Thiếu hỏi lại</h3>
+          <p>Khi không chắc, Moni chưa hỏi user xác nhận giao dịch nào là tiền trọ/quỹ nhóm.</p>
+        </div>
+        <div class="card">
+          <h3>Thiếu correction log</h3>
+          <p>User không có cách sửa phân loại và Moni không học từ lần chỉnh sửa trước.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <span class="badge">5 · Sửa path yếu nhất</span>
+      <h2>To-Be Flow</h2>
+      <div class="grid">
+        <div class="card">
+          <h3>To-Be: Quỹ nhóm trọ</h3>
+          <div class="flow good">User hỏi:
+“Chi phí trong quỹ nhóm trọ tháng này là bao nhiêu?”
+↓
+Moni kiểm tra quyền và nguồn dữ liệu
+↓
+Nếu thiếu dữ liệu:
+“Tôi chưa truy xuất được dữ liệu quỹ nhóm trọ.”
+↓
+Hiển thị button:
+[Chọn quỹ nhóm]
+[Chọn giao dịch liên quan]
+[Gắn nhãn tiền trọ]
+↓
+User xác nhận
+↓
+Moni tổng hợp lại
+↓
+Lưu correction log cho lần sau</div>
+        </div>
+        <div class="card">
+          <h3>To-Be: Ngân hàng liên kết</h3>
+          <div class="flow good">User hỏi:
+“Tổng chi tiêu tháng này là bao nhiêu?”
+↓
+Moni kiểm tra nguồn dữ liệu
+↓
+Hiển thị:
+✓ Giao dịch MoMo
+✗ Chưa có giao dịch ngân hàng liên kết
+↓
+Đưa lựa chọn:
+[Kết nối dữ liệu ngân hàng]
+[Import sao kê]
+[Chỉ tính MoMo]
+↓
+User chọn nguồn
+↓
+Moni phân tích lại
+↓
+Kết quả ghi rõ nguồn dữ liệu</div>
+        </div>
+      </div>
+      <div class="callout green">
+        <h3>Ví dụ câu trả lời tốt hơn</h3>
+        <p><b>Không nên:</b> “Bạn đã chi 8.500.000đ tháng này.”</p>
+        <p><b>Nên:</b> “Tôi đang tính dựa trên giao dịch MoMo. Chưa bao gồm giao dịch ngân hàng liên kết và quỹ nhóm trọ. Độ đầy đủ dữ liệu ước tính: 60%.”</p>
+        <p>
+          Button: <span class="pill blue">Thêm giao dịch ngân hàng</span>
+          <span class="pill blue">Gắn nhãn tiền trọ</span>
+          <span class="pill blue">Chọn quỹ nhóm</span>
+        </p>
+      </div>
+    </section>
+
+    <section class="section">
+      <span class="badge">6 · Product Decision</span>
+      <h2>Một câu quyết định sản phẩm</h2>
+      <div class="callout yellow">
+        <p class="decision">Khi dữ liệu không đầy đủ, Moni phải minh bạch nguồn dữ liệu đang phân tích và cho phép user bổ sung/gắn nhãn giao dịch thay vì trả lời như thể đã hiểu toàn bộ tài chính.</p>
+      </div>
+      <table>
+        <thead>
+          <tr><th>Thay đổi</th><th>Mục đích</th><th>Ví dụ UI</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><b>Source Transparency</b></td><td>Cho user biết Moni đang dùng nguồn nào.</td><td>“Đang tính từ MoMo. Chưa gồm ngân hàng liên kết.”</td></tr>
+          <tr><td><b>Clarification</b></td><td>Hỏi lại khi AI không chắc.</td><td>“Giao dịch này có phải tiền trọ không?”</td></tr>
+          <tr><td><b>Transaction Tagging</b></td><td>Gắn nhãn giao dịch đặc thù.</td><td>[Tiền trọ] [Điện nước] [Quỹ nhóm]</td></tr>
+          <tr><td><b>Correction Log</b></td><td>Lưu chỉnh sửa để lần sau tốt hơn.</td><td>“Đã nhớ Nguyễn Văn A là tiền trọ.”</td></tr>
+          <tr><td><b>Data Source Button</b></td><td>Cho user bổ sung nguồn dữ liệu.</td><td>[Kết nối ngân hàng] [Import sao kê]</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="section">
+      <span class="badge">7 · Output cuối</span>
+      <h2>Sketch As-Is / To-Be</h2>
+      <div class="grid">
+        <div class="card">
+          <h3>As-Is</h3>
+          <div class="flow danger">User hỏi tổng chi tiêu
+↓
+Moni truy xuất một phần dữ liệu
+↓
+Không nói rõ thiếu nguồn nào
+↓
+Trả kết quả thiếu
+↓
+User tin nhầm hoặc bị kẹt
+↓
+Không có nút sửa/gắn nhãn</div>
+        </div>
+        <div class="card">
+          <h3>To-Be</h3>
+          <div class="flow good">User hỏi tổng chi tiêu
+↓
+Moni kiểm tra nguồn dữ liệu
+↓
+Hiển thị nguồn đã có/còn thiếu
+↓
+Hỏi lại khi confidence thấp
+↓
+Cho button bổ sung:
+- chọn quỹ nhóm
+- gắn nhãn giao dịch
+- kết nối ngân hàng
+↓
+Lưu correction log
+↓
+Trả kết quả đáng tin hơn</div>
+        </div>
+      </div>
+      <div class="callout yellow"><b>Product Decision:</b> Ưu tiên xây dựng lớp “Data Completeness + Correction” cho Moni trước khi mở rộng khả năng tư vấn tài chính.</div>
+    </section>
+
+    <div class="footer">UX Workshop · Moni MoMo Case Study · App → Flow → Path yếu → Sửa</div>
+  </main>
+</body>
+</html>
