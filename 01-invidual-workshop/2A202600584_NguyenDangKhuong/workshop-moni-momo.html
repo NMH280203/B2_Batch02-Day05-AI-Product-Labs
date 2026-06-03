@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Workshop — Mổ App AI: MoMo Moni</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<style>
+  :root {
+    --pink: #e91e8c;
+    --pink-light: #fde8f4;
+    --pink-mid: #f472b6;
+    --indigo: #3730a3;
+    --indigo-light: #eef2ff;
+    --amber: #d97706;
+    --amber-light: #fffbeb;
+    --red: #dc2626;
+    --red-light: #fef2f2;
+    --green: #059669;
+    --green-light: #ecfdf5;
+    --gray: #6b7280;
+    --gray-light: #f9fafb;
+    --dark: #111827;
+    --border: #e5e7eb;
+    --font: 'Segoe UI', system-ui, sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--font);
+    background: #fafafa;
+    color: var(--dark);
+    line-height: 1.6;
+    font-size: 15px;
+  }
+
+  .cover {
+    background: linear-gradient(135deg, #1a0533 0%, #3b0764 40%, #6d28d9 100%);
+    color: white;
+    padding: 48px 40px 40px;
+    position: relative;
+    overflow: hidden;
+  }
+  .cover::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 70% 50%, rgba(233,30,140,0.3) 0%, transparent 60%);
+  }
+  .cover-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 20px;
+    padding: 4px 14px;
+    font-size: 12px;
+    letter-spacing: 0.05em;
+    margin-bottom: 20px;
+  }
+  .cover h1 {
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    margin-bottom: 8px;
+    position: relative;
+  }
+  .cover h1 span { color: #f9a8d4; }
+  .cover-sub {
+    font-size: 14px;
+    opacity: 0.7;
+    margin-bottom: 28px;
+    position: relative;
+  }
+  .cover-meta {
+    display: flex; gap: 24px; flex-wrap: wrap;
+    position: relative;
+  }
+  .cover-meta-item {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 13px; opacity: 0.85;
+  }
+  .cover-meta-item i { font-size: 16px; color: #f9a8d4; }
+
+  .container { max-width: 860px; margin: 0 auto; padding: 32px 24px; }
+
+  /* Section headers */
+  .section-label {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 16px;
+  }
+  .section-num {
+    width: 28px; height: 28px;
+    background: var(--pink);
+    color: white;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700;
+    flex-shrink: 0;
+  }
+  .section-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--dark);
+  }
+  .section-title small {
+    display: block;
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--gray);
+    margin-top: 1px;
+  }
+
+  .card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 16px;
+  }
+
+  /* Promise vs Reality */
+  .pvr-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  @media (max-width: 600px) { .pvr-grid { grid-template-columns: 1fr; } }
+  .pvr-col { border-radius: 10px; padding: 18px; }
+  .pvr-col.promise { background: var(--indigo-light); border: 1px solid #c7d2fe; }
+  .pvr-col.reality { background: var(--red-light); border: 1px solid #fecaca; }
+  .pvr-heading {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 13px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.06em;
+    margin-bottom: 12px;
+  }
+  .pvr-col.promise .pvr-heading { color: var(--indigo); }
+  .pvr-col.reality .pvr-heading { color: var(--red); }
+  .pvr-list { list-style: none; }
+  .pvr-list li {
+    display: flex; align-items: flex-start; gap: 8px;
+    font-size: 14px; margin-bottom: 8px; line-height: 1.4;
+  }
+  .pvr-list li i { font-size: 14px; margin-top: 2px; flex-shrink: 0; }
+  .pvr-col.promise .pvr-list li i { color: var(--indigo); }
+  .pvr-col.reality .pvr-list li i { color: var(--red); }
+
+  /* Evidence box */
+  .evidence-box {
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    border-radius: 10px;
+    padding: 16px 20px;
+    font-size: 13px;
+  }
+  .evidence-box strong {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em;
+    color: var(--amber); margin-bottom: 10px;
+  }
+  .evidence-items { display: flex; flex-direction: column; gap: 6px; }
+  .evidence-item {
+    display: flex; align-items: flex-start; gap: 10px;
+    background: white; border: 1px solid #fde68a;
+    border-radius: 8px; padding: 10px 12px;
+    font-size: 13px; line-height: 1.4;
+  }
+  .evidence-item i { font-size: 16px; color: var(--amber); margin-top: 1px; flex-shrink: 0; }
+
+  /* 4 Paths */
+  .paths-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  @media (max-width: 600px) { .paths-grid { grid-template-columns: 1fr; } }
+  .path-card {
+    border-radius: 10px;
+    padding: 16px;
+    border: 1px solid;
+  }
+  .path-card.happy { background: var(--green-light); border-color: #a7f3d0; }
+  .path-card.low { background: var(--amber-light); border-color: #fde68a; }
+  .path-card.failure { background: var(--red-light); border-color: #fecaca; }
+  .path-card.correction { background: var(--indigo-light); border-color: #c7d2fe; }
+  .path-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 11px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.06em; padding: 2px 10px;
+    border-radius: 20px; margin-bottom: 10px;
+  }
+  .happy .path-badge { background: #d1fae5; color: #065f46; }
+  .low .path-badge { background: #fef3c7; color: #92400e; }
+  .failure .path-badge { background: #fee2e2; color: #991b1b; }
+  .correction .path-badge { background: #e0e7ff; color: #3730a3; }
+  .path-card h4 { font-size: 14px; font-weight: 700; margin-bottom: 8px; }
+  .happy h4 { color: #065f46; }
+  .low h4 { color: #92400e; }
+  .failure h4 { color: #991b1b; }
+  .correction h4 { color: #3730a3; }
+  .path-card p { font-size: 13px; line-height: 1.5; color: #374151; }
+  .path-card .gap-flag {
+    margin-top: 10px;
+    display: flex; align-items: flex-start; gap: 6px;
+    font-size: 12px; font-weight: 600;
+    color: #dc2626;
+  }
+
+  /* Finding */
+  .finding-block {
+    background: #1e1b4b;
+    color: white;
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 16px;
+  }
+  .finding-block h3 {
+    font-size: 12px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    color: #a5b4fc; margin-bottom: 16px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .finding-row {
+    display: flex; flex-direction: column; gap: 14px;
+  }
+  .finding-item {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 10px;
+    padding: 16px;
+  }
+  .finding-trigger {
+    font-size: 12px; font-weight: 700; color: #f9a8d4;
+    text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px;
+  }
+  .finding-sentence { font-size: 14px; line-height: 1.6; margin-bottom: 12px; }
+  .finding-sentence em { color: #fcd34d; font-style: normal; font-weight: 600; }
+  .finding-tags {
+    display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px;
+  }
+  .tag {
+    font-size: 11px; font-weight: 600;
+    padding: 3px 10px; border-radius: 20px;
+  }
+  .tag.layer { background: rgba(167,139,250,0.25); color: #c4b5fd; border: 1px solid rgba(167,139,250,0.3); }
+  .tag.fix { background: rgba(52,211,153,0.2); color: #6ee7b7; border: 1px solid rgba(52,211,153,0.25); }
+  .finding-fix {
+    font-size: 13px; color: #d1fae5;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    padding-top: 10px; margin-top: 6px;
+    display: flex; align-items: flex-start; gap: 6px;
+  }
+  .finding-fix i { font-size: 16px; color: #34d399; margin-top: 1px; flex-shrink: 0; }
+
+  /* SPEC impact */
+  .spec-box {
+    background: linear-gradient(135deg, #1a0533, #3b0764);
+    color: white;
+    border-radius: 12px;
+    padding: 20px 24px;
+    display: flex; align-items: flex-start; gap: 14px;
+    margin-top: 16px;
+  }
+  .spec-box i { font-size: 28px; color: #f9a8d4; flex-shrink: 0; margin-top: 2px; }
+  .spec-box h4 { font-size: 12px; font-weight: 700; color: #f9a8d4; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+  .spec-box p { font-size: 14px; line-height: 1.5; opacity: 0.9; }
+
+  /* As-is / To-be sketch */
+  .flow-section { margin-bottom: 16px; }
+  .flow-header {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 14px;
+  }
+  .flow-badge {
+    font-size: 12px; font-weight: 700;
+    padding: 4px 14px; border-radius: 20px;
+  }
+  .asis .flow-badge { background: #fee2e2; color: #991b1b; }
+  .tobe .flow-badge { background: #d1fae5; color: #065f46; }
+  .flow-title { font-size: 16px; font-weight: 700; }
+
+  .flow-lanes {
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    gap: 0;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    font-size: 13px;
+  }
+  .lane-label {
+    background: #f3f4f6;
+    border-right: 1px solid var(--border);
+    padding: 12px 10px;
+    font-size: 11px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.05em;
+    color: var(--gray);
+    display: flex; align-items: center; justify-content: center;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+  }
+  .lane-label:last-of-type { border-bottom: none; }
+  .lane-content {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: flex-start; gap: 8px;
+    flex-wrap: wrap;
+    line-height: 1.45;
+  }
+  .lane-content:last-child { border-bottom: none; }
+
+  .step {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 5px 10px;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+  .step.ok { border-color: #a7f3d0; background: #f0fdf4; color: #065f46; }
+  .step.bad { border-color: #fecaca; background: #fef2f2; color: #991b1b; }
+  .step.new { border-color: #a5b4fc; background: #eef2ff; color: #3730a3; }
+  .step.warn { border-color: #fde68a; background: #fffbeb; color: #92400e; }
+  .arrow { color: var(--gray); font-size: 12px; padding-top: 7px; }
+  .break-point {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: #fef2f2; border: 1px solid #fecaca;
+    border-radius: 20px; padding: 3px 10px;
+    font-size: 11px; font-weight: 700; color: #dc2626;
+  }
+
+  /* Checklist */
+  .checklist { list-style: none; }
+  .checklist li {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 14px;
+  }
+  .checklist li:last-child { border-bottom: none; }
+  .check-icon { font-size: 20px; flex-shrink: 0; }
+  .check-icon.done { color: #059669; }
+  .check-icon.partial { color: #d97706; }
+
+  /* Divider */
+  .divider {
+    border: none; border-top: 1px solid var(--border);
+    margin: 32px 0;
+  }
+
+  /* Screenshot evidence */
+  .screenshots-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 10px;
+  }
+  @media (max-width: 560px) { .screenshots-row { grid-template-columns: 1fr; } }
+  .screenshot-card {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    background: white;
+  }
+  .screenshot-card img {
+    width: 100%;
+    display: block;
+    object-fit: cover;
+  }
+  .screenshot-caption {
+    padding: 10px 12px;
+    border-top: 1px solid var(--border);
+  }
+  .screenshot-caption strong {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--dark);
+    margin-bottom: 3px;
+  }
+  .screenshot-caption span {
+    font-size: 12px;
+    color: var(--gray);
+    line-height: 1.4;
+  }
+  .screenshot-tag {
+    display: inline-block;
+    font-size: 10px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.05em;
+    padding: 2px 8px; border-radius: 20px;
+    margin-bottom: 6px;
+  }
+  .tag-bang-chung { background: #fef3c7; color: #92400e; }
+  .tag-cau-hoi { background: #fee2e2; color: #991b1b; }
+
+  /* User types */
+  .user-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 12px; padding: 5px 12px; border-radius: 20px;
+    border: 1px solid;
+  }
+  .chip.purple { background: #f5f3ff; border-color: #ddd6fe; color: #5b21b6; }
+  .chip.pink { background: #fdf2f8; border-color: #f9a8d4; color: #9d174d; }
+  .chip.blue { background: #eff6ff; border-color: #bfdbfe; color: #1e40af; }
+</style>
+</head>
+<body>
+
+<!-- COVER -->
+<div class="cover">
+  <div class="cover-badge">
+    <i class="ti ti-device-mobile"></i>
+    Workshop — Mổ App AI Thật
+  </div>
+  <h1>MoMo <span>Moni</span><br>Finding Note</h1>
+  <p class="cover-sub">Phân tích AI feature · Promise vs Reality · 4 Paths · As-is / To-be</p>
+  <div class="cover-meta">
+    <div class="cover-meta-item"><i class="ti ti-user"></i> Cá nhân</div>
+    <div class="cover-meta-item"><i class="ti ti-clock"></i> 35–45 phút</div>
+    <div class="cover-meta-item"><i class="ti ti-robot"></i> Trợ thủ tài chính AI</div>
+    <div class="cover-meta-item"><i class="ti ti-calendar"></i> Ra mắt: 29/10/2024</div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- SECTION 1: PROMISE VS REALITY -->
+  <div style="margin-bottom: 32px;">
+    <div class="section-label">
+      <div class="section-num">1</div>
+      <div class="section-title">
+        Promise vs Reality
+        <small>Moni hứa gì — thực tế xảy ra gì</small>
+      </div>
+    </div>
+
+    <div class="pvr-grid">
+      <div class="pvr-col promise">
+        <div class="pvr-heading">
+          <i class="ti ti-sparkles"></i> Product hứa
+        </div>
+        <ul class="pvr-list">
+          <li><i class="ti ti-check"></i> <span>Phân tích chi tiêu <strong>tự động</strong>, phân loại danh mục</span></li>
+          <li><i class="ti ti-check"></i> <span>Cảnh báo chi tiêu bất hợp lý, gợi ý tiết kiệm</span></li>
+          <li><i class="ti ti-check"></i> <span>Chatbot giải thích khái niệm tài chính "dễ hiểu"</span></li>
+          <li><i class="ti ti-check"></i> <span>Cố vấn tài chính <strong>cá nhân hóa</strong> cho người mới</span></li>
+          <li><i class="ti ti-check"></i> <span>Đồng hành "real-time" với mọi quyết định chi tiêu</span></li>
+        </ul>
+      </div>
+      <div class="pvr-col reality">
+        <div class="pvr-heading">
+          <i class="ti ti-alert-triangle"></i> Thực tế khi dùng
+        </div>
+        <ul class="pvr-list">
+          <li><i class="ti ti-x"></i> <span>Phân loại tự động sai: "cà phê văn phòng" → <em>Ăn uống</em> thay vì <em>Công việc</em></span></li>
+          <li><i class="ti ti-x"></i> <span>Không hỏi lại khi intent mơ hồ — trả lời ngay với confidence cao giả tạo</span></li>
+          <li><i class="ti ti-x"></i> <span>Chatbot dừng ở tư vấn chung, không drill down vào data của user</span></li>
+          <li><i class="ti ti-x"></i> <span>Sửa phân loại xong → correction <strong>không được học</strong>, tuần sau vẫn sai</span></li>
+          <li><i class="ti ti-x"></i> <span>Không có low-confidence path: AI im lặng hoặc đưa câu trả lời sai tự tin</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- User targets -->
+    <div class="card" style="padding: 16px 20px;">
+      <p style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--gray); margin-bottom: 8px;">
+        <i class="ti ti-users" style="margin-right: 4px;"></i> User được target
+      </p>
+      <div class="user-chips">
+        <span class="chip purple"><i class="ti ti-user"></i> Gen Z / Millennial mới đi làm</span>
+        <span class="chip pink"><i class="ti ti-wallet"></i> Người lần đầu quản lý tài chính cá nhân</span>
+        <span class="chip blue"><i class="ti ti-chart-bar"></i> Người muốn theo dõi chi tiêu hàng tháng</span>
+      </div>
+    </div>
+
+    <!-- Evidence -->
+    <div class="evidence-box">
+      <strong><i class="ti ti-camera"></i> Evidence đã thu thập</strong>
+      <div class="evidence-items">
+        <div class="evidence-item">
+          <i class="ti ti-message-circle"></i>
+          <div><strong>Prompt đã thử:</strong> "chi tiêu tháng này của tôi như thế nào?" → Moni trả về đúng số liệu (0đ, 0 giao dịch) nhưng không breakdown danh mục, không so sánh trend tháng trước, không hỏi thêm user cần insight gì.</div>
+        </div>
+        <div class="evidence-item">
+          <i class="ti ti-message-circle"></i>
+          <div><strong>Prompt đã thử:</strong> "chi tiêu linh tinh là gì?" → Moni <strong>giải thích định nghĩa từ điển</strong> ("là các khoản chi nhỏ, không cố định…") thay vì nhận ra đây là câu hỏi về <em>data của chính user</em>. Không hỏi lại, không drill vào lịch sử giao dịch.</div>
+        </div>
+
+        <div class="screenshots-row">
+          <div class="screenshot-card">
+            <img src="bangChung.jpg" alt="Màn hình Biến động thu chi MoMo tháng 6/2026 hiển thị 0đ">
+            <div class="screenshot-caption">
+              <span class="screenshot-tag tag-bang-chung">📷 Bằng chứng</span>
+              <strong>Màn hình "Biến động thu chi"</strong>
+              <span>Tháng 6/2026: tổng chi 0đ, danh mục con trống — không có giao dịch nào để AI phân tích, nhưng báo cáo vẫn hiển thị như đã đầy đủ, không có cảnh báo "thiếu data".</span>
+            </div>
+          </div>
+          <div class="screenshot-card">
+            <img src="cauHoi.jpg" alt="Chat với Moni: hỏi chi tiêu linh tinh, AI trả lời định nghĩa thay vì phân tích data">
+            <div class="screenshot-caption">
+              <span class="screenshot-tag tag-cau-hoi">🔴 Điểm gãy</span>
+              <strong>Intent mismatch — "chi tiêu linh tinh là gì?"</strong>
+              <span>Moni trả lời định nghĩa chung ("là các khoản chi nhỏ, không cố định…") thay vì tìm trong data của user. Đây là failure của intent layer: AI hiểu là câu hỏi Wikipedia, không phải câu hỏi về tài chính cá nhân.</span>
+            </div>
+          </div>
+        </div>
+        <div class="evidence-item">
+          <i class="ti ti-edit"></i>
+          <div><strong>Hành vi quan sát:</strong> Sau khi user sửa category "Grab đi làm" từ <em>Đi lại</em> → <em>Công việc</em>, lần thanh toán tiếp theo cùng merchant vẫn về <em>Đi lại</em>. Không có thông báo correction được ghi nhận.</div>
+        </div>
+        <div class="evidence-item">
+          <i class="ti ti-star"></i>
+          <div><strong>Review App Store:</strong> "App phân loại chi tiêu của mình vào ăn uống hết trong khi mình mua đồ nhà bếp, sửa không được" — nhiều review tương tự về auto-categorization sai.</div>
+        </div>
+        <div class="evidence-item">
+          <i class="ti ti-news"></i>
+          <div><strong>Quote từ MoMo (10/2024):</strong> "Moni giúp người dùng dễ dàng quản lý chi tiêu thông qua <em>phân tích tự động</em>" — promise cụ thể về AI accuracy chưa được backup bởi fallback mechanism.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- SECTION 2: 4 PATHS -->
+  <div style="margin-bottom: 32px;">
+    <div class="section-label">
+      <div class="section-num">2</div>
+      <div class="section-title">
+        4 Paths Analysis
+        <small>Happy · Low-confidence · Failure · Correction</small>
+      </div>
+    </div>
+
+    <div class="paths-grid">
+      <!-- Happy -->
+      <div class="path-card happy">
+        <div class="path-badge"><i class="ti ti-circle-check"></i> Happy path</div>
+        <h4>Khi AI đúng và tự tin</h4>
+        <p>User xem báo cáo cuối tháng → Moni hiển thị breakdown đúng danh mục (ăn uống, tiện ích, mua sắm) → User thấy ngay tháng này chi ăn uống tăng 30% → Moni gợi ý giảm bớt order đồ ăn. Flow smooth, không cần action gì thêm.</p>
+        <p style="margin-top: 8px; font-size: 12px; color: #065f46; font-weight: 600;">✓ Xảy ra khi merchant mapping rõ ràng (Grab Food, Shopee Food)</p>
+      </div>
+
+      <!-- Low-confidence -->
+      <div class="path-card low">
+        <div class="path-badge"><i class="ti ti-alert-circle"></i> Low-confidence path</div>
+        <h4>Khi AI không chắc</h4>
+        <p>Hiện tại: <strong>Không tồn tại.</strong> Moni không có cơ chế hỏi lại, không show options, không chuyển về human support. AI sẽ tự phân loại với confidence ảo — user không biết kết quả có đáng tin không.</p>
+        <div class="gap-flag"><i class="ti ti-alert-triangle"></i> GAP: Path này hoàn toàn thiếu trong product</div>
+      </div>
+
+      <!-- Failure -->
+      <div class="path-card failure">
+        <div class="path-badge"><i class="ti ti-x"></i> Failure path</div>
+        <h4>Khi AI sai — user biết thế nào?</h4>
+        <p>User chỉ biết AI sai khi <em>tự check lại</em> transaction history hoặc khi báo cáo trông "vô lý". Không có indicator nào cho thấy phân loại này được AI tự động gán. User nhìn vào biểu đồ mà không biết data có đáng tin không.</p>
+        <div class="gap-flag"><i class="ti ti-alert-triangle"></i> GAP: Không có confidence score, không có "AI suggested" label</div>
+      </div>
+
+      <!-- Correction -->
+      <div class="path-card correction">
+        <div class="path-badge"><i class="ti ti-refresh"></i> Correction path</div>
+        <h4>Khi user sửa — có được học không?</h4>
+        <p>User có thể sửa category thủ công. Nhưng correction <strong>không persist</strong> — cùng merchant, cùng pattern, lần sau vẫn về category cũ. Không có feedback loop. Không có thông báo "đã ghi nhận". Model không học từ correction của user.</p>
+        <div class="gap-flag"><i class="ti ti-alert-triangle"></i> GAP: Correction bị bỏ đi, không feed back vào model</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- SECTION 3: FINDINGS AS DECISIONS -->
+  <div style="margin-bottom: 32px;">
+    <div class="section-label">
+      <div class="section-num">3</div>
+      <div class="section-title">
+        Finding → Product Decision
+        <small>3 findings viết thành quyết định product</small>
+      </div>
+    </div>
+
+    <div class="finding-block">
+      <h3><i class="ti ti-bug"></i> Finding #1 — Intent recognition failure</h3>
+      <div class="finding-row">
+        <div class="finding-item">
+          <div class="finding-trigger">Trigger</div>
+          <div class="finding-sentence">
+            Khi user hỏi <em>"chi tiêu linh tinh là gì?"</em> trong context đang dùng app tài chính cá nhân,<br>
+            AI/product trả lời <em>định nghĩa khái niệm chung</em> ("là các khoản chi nhỏ, không cố định…") thay vì nhận ra đây là intent hỏi về <em>data chi tiêu thực tế của chính user</em>,<br>
+            hậu quả là user không biết trong lịch sử của mình có khoản nào thuộc nhóm "linh tinh" không, và <em>không biết phải hỏi lại thế nào</em>.
+          </div>
+          <div class="finding-tags">
+            <span class="tag layer">Layer: Intent</span>
+            <span class="tag layer">Layer: UX Recovery</span>
+            <span class="tag fix">Fix: Low-confidence path</span>
+          </div>
+          <div class="finding-fix">
+            <i class="ti ti-arrow-right"></i>
+            Nên sửa bằng: khi câu hỏi dùng từ mơ hồ trong context app tài chính, Moni cần ưu tiên kiểm tra data của user trước — nếu có giao dịch phù hợp thì show, nếu không thì hỏi: <em>"Bạn muốn xem các khoản chi nhỏ lẻ trong lịch sử của mình không?"</em> thay vì giải thích từ điển.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="finding-block">
+      <h3><i class="ti ti-bug"></i> Finding #2 — Correction không được lưu</h3>
+      <div class="finding-row">
+        <div class="finding-item">
+          <div class="finding-trigger">Trigger</div>
+          <div class="finding-sentence">
+            Khi user sửa category của transaction (vd: <em>Grab đi làm → Công việc</em>),<br>
+            AI/product không ghi nhận correction này vào user preference model,<br>
+            hậu quả là <em>cùng merchant phân loại sai lặp lại mãi</em>, user phải sửa thủ công vô tận, mất tin tưởng vào AI.
+          </div>
+          <div class="finding-tags">
+            <span class="tag layer">Layer: Data/Tool</span>
+            <span class="tag layer">Layer: Promise</span>
+            <span class="tag fix">Fix: Correction feedback loop</span>
+          </div>
+          <div class="finding-fix">
+            <i class="ti ti-arrow-right"></i>
+            Nên sửa bằng: lưu merchant-to-category mapping per user, sau correction hiển thị toast "Đã lưu: Grab → Công việc cho các lần sau", và áp dụng rule này retroactively cho 30 ngày gần nhất.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="finding-block">
+      <h3><i class="ti ti-bug"></i> Finding #3 — Thiếu confidence indicator</h3>
+      <div class="finding-row">
+        <div class="finding-item">
+          <div class="finding-trigger">Trigger</div>
+          <div class="finding-sentence">
+            Khi Moni phân loại tự động toàn bộ giao dịch,<br>
+            không có visual cue nào phân biệt <em>"AI đã chắc"</em> vs <em>"AI đoán"</em>,<br>
+            hậu quả là user tin vào báo cáo có accuracy thấp, ra quyết định tài chính dựa trên data xấu.
+          </div>
+          <div class="finding-tags">
+            <span class="tag layer">Layer: UX Recovery</span>
+            <span class="tag layer">Layer: Safety</span>
+            <span class="tag fix">Fix: Transparency UI</span>
+          </div>
+          <div class="finding-fix">
+            <i class="ti ti-arrow-right"></i>
+            Nên sửa bằng: giao dịch được AI tự động phân loại có badge nhỏ "AI" + khả năng click để sửa nhanh. Báo cáo tháng hiển thị "X% giao dịch đã được xác nhận, Y% là AI tự phân loại."
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SPEC impact -->
+    <div class="spec-box">
+      <i class="ti ti-file-description"></i>
+      <div>
+        <h4>Ảnh hưởng lên SPEC</h4>
+        <p>Ba findings này sẽ đổi SPEC theo hướng: <strong>thêm low-confidence path</strong> vào chatbot flow (trigger khi intent score &lt; 0.7), <strong>thêm correction persistence layer</strong> vào data model (merchant→category mapping per user ID), và <strong>thêm confidence UI component</strong> vào transaction list + báo cáo — bao gồm test case cho cả 3 states: high-confidence / low-confidence / user-corrected.</p>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- SECTION 4: AS-IS / TO-BE SKETCH -->
+  <div style="margin-bottom: 32px;">
+    <div class="section-label">
+      <div class="section-num">4</div>
+      <div class="section-title">
+        Sketch As-is / To-be
+        <small>Flow hiện tại vs Flow đề xuất — đánh dấu điểm gãy và path đã sửa</small>
+      </div>
+    </div>
+
+    <!-- AS-IS -->
+    <div class="card flow-section asis">
+      <div class="flow-header">
+        <span class="flow-badge">AS-IS</span>
+        <span class="flow-title" style="color: #991b1b;">Flow hiện tại — điểm gãy</span>
+      </div>
+
+      <div class="flow-lanes">
+        <div class="lane-label">User</div>
+        <div class="lane-content">
+          <span class="step">Mở Moni</span>
+          <span class="arrow">→</span>
+          <span class="step">Nhập câu hỏi / xem báo cáo</span>
+          <span class="arrow">→</span>
+          <span class="step warn">Nhận kết quả</span>
+          <span class="arrow">→</span>
+          <span class="step bad">Không biết AI đoán hay chắc</span>
+          <span class="arrow">→</span>
+          <span class="step bad">Tự check lại thủ công</span>
+        </div>
+
+        <div class="lane-label">Moni AI</div>
+        <div class="lane-content">
+          <span class="step">Nhận input</span>
+          <span class="arrow">→</span>
+          <span class="step bad">Phân loại tự động (mọi case)</span>
+          <span class="arrow">→</span>
+          <span class="break-point"><i class="ti ti-alert-triangle"></i> GÃYTHỂ</span>
+          <span class="arrow">→</span>
+          <span class="step bad">Không hỏi lại</span>
+          <span class="arrow">→</span>
+          <span class="step bad">Trả kết quả tự tin</span>
+        </div>
+
+        <div class="lane-label">Khi AI sai</div>
+        <div class="lane-content">
+          <span class="step bad">User tự phát hiện sai</span>
+          <span class="arrow">→</span>
+          <span class="step warn">Sửa category thủ công</span>
+          <span class="arrow">→</span>
+          <span class="break-point"><i class="ti ti-alert-triangle"></i> GÃYLEARNING</span>
+          <span class="arrow">→</span>
+          <span class="step bad">Correction bị bỏ đi</span>
+          <span class="arrow">→</span>
+          <span class="step bad">Lần sau lặp sai</span>
+        </div>
+
+        <div class="lane-label" style="border-bottom: none;">Intent mơ hồ</div>
+        <div class="lane-content" style="border-bottom: none;">
+          <span class="step">User hỏi mơ hồ</span>
+          <span class="arrow">→</span>
+          <span class="break-point"><i class="ti ti-alert-triangle"></i> GÃY</span>
+          <span class="arrow">→</span>
+          <span class="step bad">AI trả kết quả sai nghĩa</span>
+          <span class="arrow">→</span>
+          <span class="step bad">User bế tắc</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- TO-BE -->
+    <div class="card flow-section tobe" style="margin-bottom: 0;">
+      <div class="flow-header">
+        <span class="flow-badge">TO-BE</span>
+        <span class="flow-title" style="color: #065f46;">Flow đề xuất — path đã sửa</span>
+      </div>
+
+      <div class="flow-lanes">
+        <div class="lane-label">User</div>
+        <div class="lane-content">
+          <span class="step ok">Mở Moni</span>
+          <span class="arrow">→</span>
+          <span class="step ok">Nhập câu hỏi / xem báo cáo</span>
+          <span class="arrow">→</span>
+          <span class="step ok">Nhận kết quả có confidence label</span>
+          <span class="arrow">→</span>
+          <span class="step new">Biết giao dịch nào AI tự gán</span>
+          <span class="arrow">→</span>
+          <span class="step ok">Confirm hoặc sửa 1-tap</span>
+        </div>
+
+        <div class="lane-label">Moni AI</div>
+        <div class="lane-content">
+          <span class="step">Nhận input</span>
+          <span class="arrow">→</span>
+          <span class="step new">Tính confidence score</span>
+          <span class="arrow">→</span>
+          <span class="step new">Score &lt; threshold?</span>
+          <span class="arrow">→</span>
+          <span class="step ok">Đúng: hỏi lại / show options</span>
+          <span class="arrow">→</span>
+          <span class="step ok">Sai: phân loại + badge "AI"</span>
+        </div>
+
+        <div class="lane-label">Khi AI sai</div>
+        <div class="lane-content">
+          <span class="step ok">User thấy badge "AI suggested"</span>
+          <span class="arrow">→</span>
+          <span class="step ok">1-tap sửa category</span>
+          <span class="arrow">→</span>
+          <span class="step new">Toast: "Đã lưu cho lần sau"</span>
+          <span class="arrow">→</span>
+          <span class="step new">Correction persist vào user model</span>
+          <span class="arrow">→</span>
+          <span class="step ok">Merchant mapping được nhớ</span>
+        </div>
+
+        <div class="lane-label" style="border-bottom: none;">Intent mơ hồ</div>
+        <div class="lane-content" style="border-bottom: none;">
+          <span class="step">User hỏi mơ hồ</span>
+          <span class="arrow">→</span>
+          <span class="step new">Moni phát hiện low intent score</span>
+          <span class="arrow">→</span>
+          <span class="step ok">Hỏi lại: "Bạn muốn xem theo danh mục hay merchant?"</span>
+          <span class="arrow">→</span>
+          <span class="step ok">User chọn → kết quả đúng</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- CHECKLIST -->
+  <div style="margin-bottom: 32px;">
+    <div class="section-label">
+      <div class="section-num">5</div>
+      <div class="section-title">
+        Tự kiểm trước khi nộp
+      </div>
+    </div>
+
+    <div class="card">
+      <ul class="checklist">
+        <li>
+          <i class="ti ti-circle-check check-icon done"></i>
+          <span>Có ít nhất 1 screenshot hoặc observation cụ thể — <strong>5 evidence items</strong> gồm 2 prompt thử, 1 hành vi quan sát, 1 App Store review, 1 quote từ MoMo.</span>
+        </li>
+        <li>
+          <i class="ti ti-circle-check check-icon done"></i>
+          <span>Có đủ 4 paths — Happy, Low-confidence, Failure, Correction. Low-confidence và Correction được ghi rõ là <strong>đang thiếu trong product</strong>.</span>
+        </li>
+        <li>
+          <i class="ti ti-circle-check check-icon done"></i>
+          <span>Finding được viết thành product decision — <strong>3 findings</strong> theo format: trigger / failure / impact / layer / fix.</span>
+        </li>
+        <li>
+          <i class="ti ti-circle-check check-icon done"></i>
+          <span>Sketch có As-is và To-be — 4 lanes, đánh dấu điểm gãy và path đã sửa bằng màu sắc và label rõ ràng.</span>
+        </li>
+        <li>
+          <i class="ti ti-circle-check check-icon done"></i>
+          <span>Có câu nói rõ finding này sẽ đổi gì trong SPEC — <em>thêm low-confidence path, correction persistence layer, confidence UI component + test cases cho 3 states.</em></span>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
