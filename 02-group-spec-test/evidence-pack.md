@@ -4,7 +4,7 @@ Nộp kèm thin SPEC cuối Day 05.
 
 ## 1. Nhóm và track
 
-**Tên nhóm:** Nhóm C — Food & Local Delivery  
+**Tên nhóm:** Nhóm B2  
 **Track:** C - Food & Local Delivery  
 **Product/app đã chọn:** ShopeeFood / GrabFood / BeFood làm app tham chiếu  
 **Build slice đang nghĩ:** AI gợi ý 3 món ăn phù hợp từ câu nhập tự nhiên của người dùng, dựa trên ngân sách, khẩu vị, thời gian giao và ràng buộc cá nhân.
