@@ -54,7 +54,7 @@ bằng tool + JSON catalog + user confirm + correction.
 | ID | Ví dụ user | Slots chính | `tool_plan` (thứ tự) |
 |----|------------|-------------|------------------------|
 | C1 | Trưa 1 người 50k không cay no nhanh | meal, party=1, budget, dietary | `suggest_dishes` → *(chọn món)* → `suggest_restaurants` |
-| C2 | Healthy ~60k | priority=healthy, budget |同上 |
+| C2 | Healthy ~60k | priority=healthy, budget |`suggest_dishes` → *(chọn món)* → `suggest_restaurants`  |
 | C3 | Gần Bitexco trưa 70k | intent_nearby, area_note, budget | `resolve_location` → `suggest_dishes` → … |
 | C4 | Ăn gần đây (chưa rõ địa chỉ) | intent_nearby | `clarify_context` → `resolve_location` → … |
 | C5 | Tối 2 người đổi gió 150k | party=2, mood=doi_gio | `suggest_dishes` → … |

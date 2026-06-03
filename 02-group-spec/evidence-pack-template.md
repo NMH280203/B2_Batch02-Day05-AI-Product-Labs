@@ -1,8 +1,5 @@
 # Evidence Pack — Chat gợi ý món → quán (LLM orchestrator)
 
-Nộp kèm thin SPEC cuối Day 05.
-
-> **Chú thích:** Mục có bọc `*...*` là **nhóm tự điền bằng dữ liệu thật** (screenshot, link, tên, ngày phỏng vấn) trước khi nộp Day 06 / checkpoint M1.
 
 ## 1. Nhóm và track
 
