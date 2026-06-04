@@ -3,7 +3,7 @@
 
 ## 1. Nhóm và track
 
-**Tên nhóm:** *\[điền tên nhóm thật\]*  
+**Tên nhóm:** *\[B2\]*  
 **Track:** Food / Super-app — đặt đồ ăn & khám phá món  
 **Product/app đã chọn:** GrabFood *(có thể đổi: ShopeeFood / MoMo F&B — ghi lý do nếu đổi)*  
 **Build slice đang nghĩ:** Chat API (`be/`) — LLM orchestrator chọn tool theo ngữ cảnh → gợi ý **2 món trước** → user chọn món → gợi ý **2 quán** có món đó (tool vị trí chỉ khi user muốn "gần").
