@@ -95,20 +95,20 @@ Prototype xử lý bằng:
 - correction → re-run suggest_dishes;
 - không auto-order.
 
-Owner kiểm thử path này là *\[tên thành viên\]*.
+Owner kiểm thử path này là *\[Trần Duy Khánh - 2A202600592\]*.
 ```
 
 ## 8. Owner plan cho sáng Day 06
 
 | Thành viên | Việc phụ trách | Bằng chứng cần có trong repo |
 |---|---|---|
-| *\[Tên\]* | Research / evidence — screenshot + URL review thật | `02-group-spec/evidence-pack-template.md` |
-| *\[Tên\]* | SPEC + `prompt/system_prompt.py` | `thin-spec-template.md`, `be/prompt/` |
-| *\[Tên\]* | `orchestrator.py`, `tools/executor.py`, `routers/chat.py` | `be/agents/`, `be/routers/chat.py` |
-| *\[Tên\]* | `food_agent`, `food_search`, `data/dishes.json` | `be/agents/food_agent.py`, `be/data/` |
-| *\[Tên\]* | `restaurant_agent`, `places` handler | `be/agents/restaurant_agent.py`, `be/tools/handlers/places.py` |
-| *\[Tên\]* | Test 4 paths + failure C10 | *\[file checklist test / Postman collection\]* |
-| *\[Tên\]* | Demo script + README chạy `uvicorn` | `02-group-spec/demo-script.md`, repo README |
+| *\[Nguyễn Đăng Khương - 2A202600584\]* | Research / evidence — screenshot + URL review thật | `02-group-spec/evidence-pack-template.md` |
+| *\[Mai Đức Vinh - 2A202600587\]* | SPEC + `prompt/system_prompt.py` | `thin-spec-template.md`, `be/prompt/` |
+| *\[Nguyễn Mạnh Hiếu - 2A202600887\]* | `orchestrator.py`, `tools/executor.py`, `routers/chat.py` | `be/agents/`, `be/routers/chat.py` |
+| *\[Trần Duy Khánh - 2A202600592\]* | `food_agent`, `food_search`, `data/dishes.json` | `be/agents/food_agent.py`, `be/data/` |
+| *\[Nguyễn Mạnh Hiếu - 2A202600887\]* | `restaurant_agent`, `places` handler | `be/agents/restaurant_agent.py`, `be/tools/handlers/places.py` |
+| *\[Mai Đức Vinh - 2A202600587\]* | Test 4 paths + failure C10 | *\[file checklist test / Postman collection\]* |
+| *\[Tống Anh Huy 2A202600761\]* | Demo script + README chạy `uvicorn` | `02-group-spec/demo-script.md`, repo README |
 
 ## 9. Map triển khai `be/` (tham chiếu Day 06)
 
