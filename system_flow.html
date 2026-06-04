@@ -1,0 +1,1314 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bản Vẽ Hệ Thống & Luồng Hoạt Động AI (Gemini Agent Pipeline)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #090d16;
+      --bg-panel: #111827;
+      --bg-card: #1f2937;
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+      
+      --color-primary: #3b82f6;     /* Blue - General tools / HTTP */
+      --color-agent: #a855f7;       /* Purple - AI Agent logic */
+      --color-frontend: #ec4899;    /* Pink - Frontend UI/Zustand */
+      --color-sse: #f97316;         /* Orange - Server-Sent Events */
+      --color-success: #10b981;     /* Green - Completed / Results */
+      --color-warning: #f59e0b;     /* Yellow - Clarification / Ask Context */
+      
+      --glow-primary: rgba(59, 130, 246, 0.4);
+      --glow-agent: rgba(168, 85, 247, 0.4);
+      --glow-frontend: rgba(236, 72, 153, 0.4);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: 'Outfit', sans-serif;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    h1, h2, h3, h4 {
+      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
+
+    /* Layout */
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      padding-bottom: 1.5rem;
+    }
+
+    .app-title h1 {
+      font-size: 2.2rem;
+      background: linear-gradient(135deg, #60a5fa 0%, #c084fc 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 0.25rem;
+    }
+
+    .app-title p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    .badge-container {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .badge {
+      padding: 0.35rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .badge::before {
+      content: '';
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+    }
+
+    .badge-fe { border-color: var(--color-frontend); color: var(--color-frontend); }
+    .badge-fe::before { background-color: var(--color-frontend); }
+    .badge-be { border-color: var(--color-primary); color: var(--color-primary); }
+    .badge-be::before { background-color: var(--color-primary); }
+    .badge-ai { border-color: var(--color-agent); color: var(--color-agent); }
+    .badge-ai::before { background-color: var(--color-agent); }
+
+    /* Tabs Navigation */
+    .tabs-nav {
+      display: flex;
+      gap: 0.5rem;
+      background-color: var(--bg-panel);
+      padding: 0.35rem;
+      border-radius: 0.75rem;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      margin-bottom: 2rem;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 0.85rem 1rem;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 500;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .tab-btn:hover {
+      color: var(--text-main);
+      background-color: rgba(255, 255, 255, 0.02);
+    }
+
+    .tab-btn.active {
+      color: var(--text-main);
+      background-color: rgba(255, 255, 255, 0.08);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    /* Tab Contents */
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+      animation: fadeIn 0.4s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Grid layout */
+    .view-grid {
+      display: grid;
+      grid-template-columns: 1fr 450px;
+      gap: 2rem;
+      align-items: start;
+    }
+
+    @media (max-width: 1100px) {
+      .view-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .canvas-panel {
+      background-color: var(--bg-panel);
+      border-radius: 1rem;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      padding: 2rem;
+      min-height: 600px;
+      position: relative;
+    }
+
+    .sidebar-panel {
+      background-color: var(--bg-panel);
+      border-radius: 1rem;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      padding: 1.5rem;
+      position: sticky;
+      top: 2rem;
+    }
+
+    /* Node & Flow designs */
+    .flowchart-container {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      align-items: center;
+      padding: 1rem 0;
+    }
+
+    .flow-row {
+      display: flex;
+      justify-content: space-around;
+      width: 100%;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .flow-node {
+      background-color: var(--bg-card);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 0.75rem;
+      padding: 1rem;
+      width: 260px;
+      position: relative;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .flow-node:hover {
+      transform: translateY(-2px);
+      border-color: rgba(255, 255, 255, 0.2);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    }
+
+    .flow-node.active {
+      border-color: var(--active-color);
+      box-shadow: 0 0 15px var(--active-glow);
+    }
+
+    .node-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      padding-bottom: 0.35rem;
+    }
+
+    .node-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .node-tag {
+      font-size: 0.7rem;
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+
+    .node-desc {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
+    }
+
+    .node-meta {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.72rem;
+      color: #60a5fa;
+      background: rgba(96, 165, 250, 0.05);
+      padding: 0.25rem 0.4rem;
+      border-radius: 4px;
+      display: inline-block;
+    }
+
+    /* Specialized Node Tags & Colors */
+    .node-fe-theme {
+      --active-color: var(--color-frontend);
+      --active-glow: var(--glow-primary);
+    }
+    .node-fe-theme .node-tag {
+      background: rgba(236, 72, 153, 0.15);
+      color: var(--color-frontend);
+    }
+
+    .node-be-theme {
+      --active-color: var(--color-primary);
+      --active-glow: var(--glow-primary);
+    }
+    .node-be-theme .node-tag {
+      background: rgba(59, 130, 246, 0.15);
+      color: var(--color-primary);
+    }
+
+    .node-ai-theme {
+      --active-color: var(--color-agent);
+      --active-glow: var(--glow-agent);
+    }
+    .node-ai-theme .node-tag {
+      background: rgba(168, 85, 247, 0.15);
+      color: var(--color-agent);
+    }
+
+    .node-sse-theme {
+      --active-color: var(--color-sse);
+      --active-glow: rgba(249, 115, 22, 0.4);
+    }
+    .node-sse-theme .node-tag {
+      background: rgba(249, 115, 22, 0.15);
+      color: var(--color-sse);
+    }
+
+    /* Connectors / Arrows */
+    .flow-connector {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      height: 40px;
+      position: relative;
+    }
+
+    .flow-connector::after {
+      content: '↓';
+      font-size: 1.5rem;
+      animation: pulseArrow 1.5s infinite;
+    }
+
+    @keyframes pulseArrow {
+      0%, 100% { opacity: 0.4; transform: translateY(0); }
+      50% { opacity: 1; transform: translateY(4px); }
+    }
+
+    .flow-connector-label {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      background-color: var(--bg-panel);
+      padding: 0.1rem 0.5rem;
+      border-radius: 4px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      margin-top: -5px;
+      z-index: 1;
+    }
+
+    /* Side details */
+    .details-box h3 {
+      font-size: 1.25rem;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 0.5rem;
+    }
+
+    .details-box h3 span {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    .details-row {
+      margin-bottom: 1rem;
+    }
+
+    .details-label {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+
+    .details-value {
+      font-size: 0.9rem;
+      color: var(--text-main);
+    }
+
+    .details-code {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.78rem;
+      background-color: #0c0f16;
+      padding: 0.75rem;
+      border-radius: 0.5rem;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      overflow-x: auto;
+      white-space: pre;
+      color: #34d399;
+      margin-top: 0.25rem;
+    }
+
+    /* Simulator UI */
+    .simulator-card {
+      background-color: #0c0f16;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 0.75rem;
+      padding: 1.25rem;
+      margin-top: 1.5rem;
+    }
+
+    .simulator-title {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .simulator-title::before {
+      content: '';
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      background-color: var(--color-success);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--color-success);
+    }
+
+    .scenario-select {
+      width: 100%;
+      background-color: var(--bg-card);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--text-main);
+      padding: 0.65rem;
+      border-radius: 0.5rem;
+      font-family: inherit;
+      font-size: 0.85rem;
+      margin-bottom: 1rem;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .scenario-select:focus {
+      border-color: var(--color-primary);
+    }
+
+    .sim-controls {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .btn {
+      padding: 0.55rem 1rem;
+      border-radius: 0.5rem;
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .btn-primary {
+      background-color: var(--color-primary);
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background-color: #2563eb;
+    }
+
+    .btn-secondary {
+      background-color: rgba(255, 255, 255, 0.05);
+      border-color: rgba(255, 255, 255, 0.1);
+      color: var(--text-main);
+    }
+
+    .btn-secondary:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    /* Terminal Console */
+    .console-log {
+      height: 180px;
+      overflow-y: auto;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.72rem;
+      background: #06090f;
+      border: 1px solid rgba(255, 255, 255, 0.03);
+      padding: 0.75rem;
+      border-radius: 0.5rem;
+      color: #a7f3d0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .console-line {
+      line-height: 1.4;
+      border-left: 2px solid transparent;
+      padding-left: 0.4rem;
+    }
+
+    .line-info { border-color: var(--color-primary); color: #93c5fd; }
+    .line-fe { border-color: var(--color-frontend); color: #f472b6; }
+    .line-be { border-color: var(--color-primary); color: #60a5fa; }
+    .line-agent { border-color: var(--color-agent); color: #c084fc; }
+    .line-sse { border-color: var(--color-sse); color: #fdba74; }
+    .line-success { border-color: var(--color-success); color: #34d399; }
+    .line-warning { border-color: var(--color-warning); color: #fbbf24; }
+
+    /* Tool list styles */
+    .tool-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .tool-card {
+      background-color: var(--bg-panel);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .tool-card:hover {
+      border-color: rgba(255, 255, 255, 0.15);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    }
+
+    .tool-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.75rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      padding-bottom: 0.5rem;
+    }
+
+    .tool-name {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #f3f4f6;
+      font-family: 'Fira Code', monospace;
+    }
+
+    .tool-scope {
+      font-size: 0.72rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 9999px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+
+    .scope-orchestrator { background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); }
+    .scope-food { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+    .scope-restaurant { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
+
+    .tool-desc {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+    }
+
+    .tool-meta-title {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.25rem;
+    }
+
+    /* Tabs sub-container inside Detail view */
+    .be-flowchart {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+
+    .flow-step-block {
+      background-color: var(--bg-card);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 0.75rem;
+      padding: 1.25rem;
+      position: relative;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .flow-step-block:hover {
+      border-color: rgba(255,255,255,0.15);
+      transform: translateX(4px);
+    }
+
+    .flow-step-block.active {
+      border-color: var(--color-primary);
+      box-shadow: 0 0 10px rgba(59, 130, 246, 0.2);
+    }
+
+    .step-number {
+      position: absolute;
+      top: -10px;
+      left: 15px;
+      background: var(--color-primary);
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 700;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    }
+
+    .flow-step-block.step-agent .step-number { background: var(--color-agent); }
+    .flow-step-block.step-fe .step-number { background: var(--color-frontend); }
+    .flow-step-block.step-sse .step-number { background: var(--color-sse); }
+
+    .step-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-bottom: 0.35rem;
+      margin-top: 0.25rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .step-desc {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    /* SVG Connecting lines custom rendering */
+    .flow-arrow-svg {
+      width: 100%;
+      height: 40px;
+      display: block;
+      margin: 0.5rem 0;
+    }
+
+    .flow-arrow-path {
+      fill: none;
+      stroke: rgba(255, 255, 255, 0.1);
+      stroke-width: 2;
+      stroke-dasharray: 5, 5;
+      animation: dash 20s linear infinite;
+    }
+
+    @keyframes dash {
+      to { stroke-dashoffset: -1000; }
+    }
+
+    .flow-arrow-path.active {
+      stroke: var(--color-primary);
+      stroke-width: 3;
+      stroke-dasharray: none;
+    }
+
+    .flow-arrow-path.active-agent {
+      stroke: var(--color-agent);
+      stroke-width: 3;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <div class="app-title">
+        <h1>Bản Vẽ Luồng Hệ Thống & Gemini AI Agent</h1>
+        <p>Kiến trúc thiết kế end-to-end cho AI gợi ý món ăn & quán ăn (Day 05 - AI Product Labs)</p>
+      </div>
+      <div class="badge-container">
+        <span class="badge badge-fe">Next.js 14 / Tailwind</span>
+        <span class="badge badge-be">FastAPI / Python</span>
+        <span class="badge badge-ai">Gemini-2.0 / Agent</span>
+      </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <nav class="tabs-nav">
+      <button class="tab-btn active" onclick="switchTab(event, 'tab-e2e')">
+        🌐 Luồng End-to-End (E2E)
+      </button>
+      <button class="tab-btn" onclick="switchTab(event, 'tab-ai-flow')">
+        🧠 Luồng AI & Agent Pipeline
+      </button>
+      <button class="tab-btn" onclick="switchTab(event, 'tab-tools')">
+        🛠️ Cơ Chế Hoạt Động Các Tool
+      </button>
+    </nav>
+
+    <!-- VIEW GRID CONTROLLER -->
+    <div class="view-grid">
+      
+      <!-- LEFT HAND CANVAS -->
+      <main class="canvas-panel">
+        
+        <!-- ================== TAB 1: E2E SYSTEM FLOW ================== -->
+        <div id="tab-e2e" class="tab-content active">
+          <div class="flowchart-container">
+            
+            <!-- STEP 1: FE Interaction -->
+            <div class="flow-node node-fe-theme" id="node-e2e-1" onclick="showDetail('e2e-fe-input')">
+              <div class="node-header">
+                <span class="node-title">1. FE User Input</span>
+                <span class="node-tag">UI / Web</span>
+              </div>
+              <p class="node-desc">User gửi yêu cầu chat. Tự động lấy vị trí hiện tại (Geolocation API).</p>
+              <div class="node-meta">fe/app/chat/page.tsx</div>
+            </div>
+
+            <div class="flow-connector" id="conn-e2e-1"><span class="flow-connector-label">Zustand Store & LocalStorage</span></div>
+
+            <!-- STEP 2: Client Request & Stream Trigger -->
+            <div class="flow-node node-fe-theme" id="node-e2e-2" onclick="showDetail('e2e-fe-store')">
+              <div class="node-header">
+                <span class="node-title">2. useChat & SSE trigger</span>
+                <span class="node-tag">State / Api</span>
+              </div>
+              <p class="node-desc">Thêm message rỗng vào store. Gọi POST /api/chat bằng ReadableStream.</p>
+              <div class="node-meta">fe/hooks/useChat.ts</div>
+            </div>
+
+            <div class="flow-connector" id="conn-e2e-2"><span class="flow-connector-label">POST Request (JSON payload)</span></div>
+
+            <!-- STEP 3: BE API Router -->
+            <div class="flow-node node-be-theme" id="node-e2e-3" onclick="showDetail('e2e-be-router')">
+              <div class="node-header">
+                <span class="node-title">3. Chat Router</span>
+                <span class="node-tag">API Endpoint</span>
+              </div>
+              <p class="node-desc">Nhận ChatRequest, trả về Server-Sent Events (SSE) stream.</p>
+              <div class="node-meta">be/routers/chat.py</div>
+            </div>
+
+            <div class="flow-connector" id="conn-e2e-3"><span class="flow-connector-label">Kích hoạt orchestrator.run</span></div>
+
+            <!-- STEP 4: BE Orchestrator & Agents -->
+            <div class="flow-node node-ai-theme" id="node-e2e-4" onclick="showDetail('e2e-be-orch')">
+              <div class="node-header">
+                <span class="node-title">4. Agent Orchestrator</span>
+                <span class="node-tag">AI Pipeline</span>
+              </div>
+              <p class="node-desc">Detect Intent -> Gọi Food Agent & Restaurant Agent lần lượt (Function Calling).</p>
+              <div class="node-meta">be/agents/orchestrator.py</div>
+            </div>
+
+            <div class="flow-connector" id="conn-e2e-4"><span class="flow-connector-label">Stream các SSE Events</span></div>
+
+            <!-- STEP 5: SSE Event Transmission -->
+            <div class="flow-node node-sse-theme" id="node-e2e-5" onclick="showDetail('e2e-sse-stream')">
+              <div class="node-header">
+                <span class="node-title">5. Server-Sent Events</span>
+                <span class="node-tag">SSE Stream</span>
+              </div>
+              <p class="node-desc">Stream song song events: thinking, food_results, restaurant_results, text, done.</p>
+              <div class="node-meta">event: text | food_results</div>
+            </div>
+
+            <div class="flow-connector" id="conn-e2e-5"><span class="flow-connector-label">ReadableStream reader</span></div>
+
+            <!-- STEP 6: UI Rendering -->
+            <div class="flow-node node-fe-theme" id="node-e2e-6" onclick="showDetail('e2e-fe-render')">
+              <div class="node-header">
+                <span class="node-title">6. Dynamic Render UI</span>
+                <span class="node-tag">Component UI</span>
+              </div>
+              <p class="node-desc">Cập nhật store, hiển thị các FoodCard, RestaurantCard và bản đồ MapEmbed.</p>
+              <div class="node-meta">fe/components/chat/ChatWindow.tsx</div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ================== TAB 2: AI AGENT FLOW ================== -->
+        <div id="tab-ai-flow" class="tab-content">
+          <div class="be-flowchart">
+            
+            <div class="flow-step-block step-fe" id="node-ai-step1" onclick="showDetail('ai-context')">
+              <div class="step-number">1</div>
+              <div class="step-title">Enrich Context & Intent Detection <span class="node-tag" style="background: rgba(168, 85, 247, 0.15); color: #c084fc;">AI + Regex</span></div>
+              <p class="step-desc">Đọc message cuối để tự động map nhanh ngân sách, số người ăn, thời gian ăn, sở thích bằng Regex/Unicodedata để tránh gọi Gemini quá nhiều.
+              Sau đó gọi Gemini API với `detect_intent` để phân tích ý định (chỉ tìm món ăn, tìm quán ăn, hay cả hai).</p>
+            </div>
+
+            <div class="flow-connector"><span class="flow-connector-label">Phân tích Intent</span></div>
+
+            <div class="flow-step-block step-agent" id="node-ai-step2" onclick="showDetail('ai-food-agent')">
+              <div class="step-number">2</div>
+              <div class="step-title">Food Agent Pipeline <span class="node-tag" style="background: rgba(16, 185, 129, 0.15); color: #34d399;">Food Agent</span></div>
+              <p class="step-desc">Nhận context, gọi Gemini với tập `food_tools`.
+              - Nếu chưa biết thời tiết: Gọi `get_weather` từ OpenWeatherMap.
+              - Gọi `search_food_by_criteria` kết hợp thời tiết và ngữ cảnh để gợi ý 3 món ăn.
+              - Nếu có từ khóa hot trend: Gọi `crawl_trending_foods` để cào mạng thực tế.
+              - Trả về cấu trúc danh sách món đề xuất dưới dạng JSON qua SSE.</p>
+            </div>
+
+            <div class="flow-connector"><span class="flow-connector-label">Nếu cần tìm quán và có Location</span></div>
+
+            <div class="flow-step-block step-agent" id="node-ai-step3" onclick="showDetail('ai-rest-agent')">
+              <div class="step-number">3</div>
+              <div class="step-title">Restaurant Agent Pipeline <span class="node-tag" style="background: rgba(59, 130, 246, 0.15); color: #60a5fa;">Restaurant Agent</span></div>
+              <p class="step-desc">Nhận danh sách món ăn từ bước 2 và vị trí. Gọi Gemini với tập `restaurant_tools`.
+              - Gọi `search_nearby_restaurants` qua Google Places API.
+              - Nếu người dùng cần review: Gọi `crawl_restaurant_reviews` để lấy review online.
+              - Gọi `rank_restaurants` để tính toán độ phù hợp theo thang điểm: 
+                <code>Score = food_match*0.3 + rating*0.25 + distance*0.2 + price*0.15 + reviews*0.1</code>
+              - Trả về danh sách quán ăn đã sắp xếp chất lượng qua SSE.</p>
+            </div>
+
+            <div class="flow-connector"><span class="flow-connector-label">Tổng hợp kết quả</span></div>
+
+            <div class="flow-step-block step-sse" id="node-ai-step4" onclick="showDetail('ai-final')">
+              <div class="step-number">4</div>
+              <div class="step-title">Final Synthesis & Stream <span class="node-tag" style="background: rgba(249, 115, 22, 0.15); color: var(--color-sse);">Final Output</span></div>
+              <p class="step-desc">Gọi Gemini lần cuối (stream=True) kết hợp câu hỏi ban đầu, gợi ý món ăn, quán ăn, và sở thích người dùng để soạn lời thoại trả lời tự nhiên. Kèm disclaimer nếu người dùng bị dị ứng thức ăn.</p>
+            </div>
+
+            <div class="flow-step-block step-warning" id="node-ai-clarify" onclick="showDetail('ai-ask-context')">
+              <div class="step-number">!</div>
+              <div class="step-title">Interrupt: ask_user_for_context <span class="node-tag" style="background: rgba(245, 158, 11, 0.15); color: var(--color-warning);">Clarification</span></div>
+              <p class="step-desc">Nếu ở bất kì Agent nào, các thông tin cực kỳ thiết yếu (như vị trí địa lý khi tìm quán) không có, luồng AI sẽ lập tức bị ngắt. AI trả về event <code>ask_context</code> kèm câu hỏi thân thiện yêu cầu người dùng điền thông tin còn thiếu.</p>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ================== TAB 3: TOOLS OPERATIONS ================== -->
+        <div id="tab-tools" class="tab-content">
+          <div class="tool-grid">
+            
+            <div class="tool-card" onclick="showDetail('tool-intent')">
+              <div class="tool-header">
+                <span class="tool-name">detect_intent</span>
+                <span class="tool-scope scope-orchestrator">Orchestrator</span>
+              </div>
+              <p class="tool-desc">Nhận tin nhắn thô từ user, phân tích xem user đang muốn gợi ý món, tìm quán, xem review hay cần hỏi thêm thông tin.</p>
+              <div class="tool-meta-title">File Handler</div>
+              <span class="node-meta">be/agents/orchestrator.py</span>
+            </div>
+
+            <div class="tool-card" onclick="showDetail('tool-weather')">
+              <div class="tool-header">
+                <span class="tool-name">get_weather</span>
+                <span class="tool-scope scope-food">Food Agent</span>
+              </div>
+              <p class="tool-desc">Truy vấn OpenWeatherMap lấy thời tiết hiện tại. Dùng làm input cho thuật toán chọn món ăn (tránh các món nóng nực khi trời nắng gắt).</p>
+              <div class="tool-meta-title">File Handler</div>
+              <span class="node-meta">be/tools/handlers/weather.py</span>
+            </div>
+
+            <div class="tool-card" onclick="showDetail('tool-food-search')">
+              <div class="tool-header">
+                <span class="tool-name">search_food_by_criteria</span>
+                <span class="tool-scope scope-food">Food Agent</span>
+              </div>
+              <p class="tool-desc">Dùng Gemini call_json tạo danh sách 3 món phù hợp nhất với thời gian trong ngày, thời tiết, ngân sách và kiêng kỵ dị ứng.</p>
+              <div class="tool-meta-title">File Handler</div>
+              <span class="node-meta">be/tools/handlers/food_search.py</span>
+            </div>
+
+            <div class="tool-card" onclick="showDetail('tool-trend')">
+              <div class="tool-header">
+                <span class="tool-name">crawl_trending_foods</span>
+                <span class="tool-scope scope-food">Food Agent</span>
+              </div>
+              <p class="tool-desc">Cào từ Google Search các bài báo, bài viết giới trẻ để tìm món ăn đang hot trend thực tế (Ví dụ: trà chanh giã tay, bánh đồng xu).</p>
+              <div class="tool-meta-title">File Handler</div>
+              <span class="node-meta">be/services/scraper.py</span>
+            </div>
+
+            <div class="tool-card" onclick="showDetail('tool-places')">
+              <div class="tool-header">
+                <span class="tool-name">search_nearby_restaurants</span>
+                <span class="tool-scope scope-restaurant">Restaurant Agent</span>
+              </div>
+              <p class="tool-desc">Tìm kiếm các địa điểm ăn uống trên Google Places API dựa trên toạ độ kinh vĩ độ và từ khóa món ăn.</p>
+              <div class="tool-meta-title">File Handler</div>
+              <span class="node-meta">be/tools/handlers/places.py</span>
+            </div>
+
+            <div class="tool-card" onclick="showDetail('tool-ranking')">
+              <div class="tool-header">
+                <span class="tool-name">rank_restaurants</span>
+                <span class="tool-scope scope-restaurant">Restaurant Agent</span>
+              </div>
+              <p class="tool-desc">Tính toán độ tương thích của quán ăn với người dùng dựa trên thuật toán tích chập trọng số khoảng cách, giá cả, và đánh giá.</p>
+              <div class="tool-meta-title">File Handler</div>
+              <span class="node-meta">be/tools/handlers/ranking.py</span>
+            </div>
+
+            <div class="tool-card" onclick="showDetail('tool-reviews')">
+              <div class="tool-header">
+                <span class="tool-name">crawl_restaurant_reviews</span>
+                <span class="tool-scope scope-restaurant">Restaurant Agent</span>
+              </div>
+              <p class="tool-desc">Truy cập internet cào 3 bài đánh giá thực tế của quán ăn khi người dùng yêu cầu xem review hoặc cần độ tin cậy cao.</p>
+              <div class="tool-meta-title">File Handler</div>
+              <span class="node-meta">be/services/scraper.py</span>
+            </div>
+
+            <div class="tool-card" onclick="showDetail('tool-ask')">
+              <div class="tool-header">
+                <span class="tool-name">ask_user_for_context</span>
+                <span class="tool-scope scope-orchestrator">Common</span>
+              </div>
+              <p class="tool-desc">Hỏi thêm thông tin khi phát hiện thiếu hụt nghiêm trọng dữ liệu context bắt buộc trước khi chạy tiếp các bước sau.</p>
+              <div class="tool-meta-title">File Handler</div>
+              <span class="node-meta">be/tools/executor.py</span>
+            </div>
+
+          </div>
+        </div>
+
+      </main>
+
+      <!-- RIGHT HAND PANEL: DYNAMIC DETAILS & SIMULATOR -->
+      <aside class="sidebar-panel">
+        
+        <!-- Node Detail Section -->
+        <div class="details-box" id="detail-box">
+          <h3><span style="background-color: var(--color-primary)"></span> Chi tiết thành phần</h3>
+          <p style="color: var(--text-muted); font-size: 0.9rem;">Hãy bấm vào một Node hoặc một Tool để xem chi tiết mã nguồn, tham số đầu vào và định dạng đầu ra của thành phần hệ thống đó.</p>
+        </div>
+
+        <!-- Interactive Simulator Section -->
+        <div class="simulator-card">
+          <div class="simulator-title">Trình Giả Lập Luồng Hoạt Động</div>
+          <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.75rem;">
+            Chọn một ngữ cảnh người dùng gửi và bấm "Chạy giả lập" để xem cách hệ thống phân tích, gọi các Agent, gọi Tool và trả về UI qua SSE.
+          </p>
+          
+          <label style="font-size: 0.75rem; font-weight: 600; text-transform: uppercase; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">Kịch bản Test (Scenario)</label>
+          <select id="scenario-selector" class="scenario-select" onchange="loadScenario()">
+            <option value="happy_path">1. Happy Path (Đủ ngữ cảnh - Chọn món & Quán)</option>
+            <option value="trend_path">2. Hot Trend Search (Cào thông tin món mới)</option>
+            <option value="review_path">3. Review Check (Cào đánh giá quán ăn)</option>
+            <option value="no_location">4. Missing Context (Thiếu toạ độ GPS)</option>
+          </select>
+
+          <div class="sim-controls">
+            <button class="btn btn-primary" id="btn-run" onclick="runSimulation()">⚡ Chạy giả lập</button>
+            <button class="btn btn-secondary" onclick="resetSimulation()">🔄 Reset</button>
+          </div>
+
+          <label style="font-size: 0.75rem; font-weight: 600; text-transform: uppercase; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">Server Console & SSE Log</label>
+          <div class="console-log" id="console-output">
+            <span class="console-line line-info">&gt; Sẵn sàng chạy giả lập...</span>
+          </div>
+        </div>
+
+      </aside>
+
+    </div>
+  </div>
+
+  <script>
+    // System Data detailing everything
+    const detailsData = {
+      'e2e-fe-input': {
+        title: '1. FE User Input',
+        color: 'var(--color-frontend)',
+        source: 'fe/app/chat/page.tsx',
+        desc: 'Nơi người dùng gõ câu lệnh chat. Component ChatWindow sẽ tự động kích hoạt `useGeolocation` để yêu cầu GPS của trình duyệt (lat, lng) và lưu nó trực tiếp vào UserContext trong Zustand Store. Đồng thời, các thông tin phụ như ngân sách, sở thích ăn uống của user cũng được lưu trữ.',
+        input: '{\n  "message": "Tôi mệt quá, muốn ăn món gì ấm dưới 60k gần đây",\n  "current_gps": "Đang lấy..."\n}',
+        output: 'UserContext được cập nhật:\n{\n  "location": { "lat": 10.7626, "lng": 106.6601 },\n  "preferences": [],\n  "allergies": []\n}'
+      },
+      'e2e-fe-store': {
+        title: '2. useChat & SSE Trigger',
+        color: 'var(--color-frontend)',
+        source: 'fe/hooks/useChat.ts',
+        desc: 'React hook `useChat` quản lý việc gửi tin nhắn. Nó thêm một tin nhắn của người dùng và một khung tin nhắn trống của trợ lý với thuộc tính `isLoading` vào store Zustand. Sau đó, nó thực hiện kết nối HTTP POST sử dụng cơ chế streaming Reader tới Backend để đọc dữ liệu Server-Sent Events (SSE).',
+        input: 'messages: list[Message],\ncontext: UserContext',
+        output: 'POST /api/chat với header:\nAccept: text/event-stream'
+      },
+      'e2e-be-router': {
+        title: '3. Chat Router',
+        color: 'var(--color-primary)',
+        source: 'be/routers/chat.py',
+        desc: 'FastAPI Router nhận JSON payload từ Client. Nó thiết lập kết nối HTTP dạng Server-Sent Events stream (media_type="text/event-stream"). Nó khởi tạo một generator async, truyền một `stream_callback` vào Orchestrator Agent, nhờ đó Orchestrator có thể đẩy tin nhắn về FE ngay lập tức khi đang chạy.',
+        input: 'class ChatRequest(BaseModel):\n  messages: list[Message]\n  context: UserContext',
+        output: 'event: thinking (trạng thái trung gian)\nevent: food_results\nevent: restaurant_results\nevent: text\nevent: done'
+      },
+      'e2e-be-orch': {
+        title: '4. Agent Orchestrator',
+        color: 'var(--color-agent)',
+        source: 'be/agents/orchestrator.py',
+        desc: 'Bộ não điều phối hệ thống. Đầu tiên, nó dùng hàm `_enrich_context_from_messages` để tách thông tin như ngân sách (ví dụ: "dưới 60k" -> 60000 VND), số người, thời điểm ăn nhanh bằng Regex. Tiếp theo, nó gọi Gemini AI với tool `detect_intent` để quyết định chạy Agent món ăn hay Agent nhà hàng. Các kết quả trung gian sẽ liên tục được gửi lại cho Client.',
+        input: 'messages: list, context: UserContext, stream_callback',
+        output: 'Tự động kích hoạt các Agent phụ và điều phối luồng công việc.'
+      },
+      'e2e-sse-stream': {
+        title: '5. Server-Sent Events',
+        color: 'var(--color-sse)',
+        source: 'Mạng lưới truyền tải (SSE)',
+        desc: 'Kết nối SSE giữ cho UI mượt mà. Thay vì đợi AI suy nghĩ mất 10-15s rồi mới hiển thị, backend sẽ đẩy thông tin ngay khi tìm xong món ăn, sau đó đẩy quán ăn, và cuối cùng là stream từng chữ của lời khuyên từ Gemini.',
+        input: 'Stream chunk: "event: text\\ndata: {\\"delta\\": \\"Chào bạn\\"} \\n\\n"',
+        output: 'Client nhận và chèn dần dữ liệu vào khung chat.'
+      },
+      'e2e-fe-render': {
+        title: '6. Dynamic Render UI',
+        color: 'var(--color-frontend)',
+        source: 'fe/components/chat/ChatWindow.tsx',
+        desc: 'Khi Client nhận được event `food_results` hay `restaurant_results`, Zustand Store sẽ được cập nhật. Component ChatWindow sẽ phát hiện thay đổi và hiển thị các card món ăn (`FoodCard`), danh sách quán ăn (`RestaurantCard`), và bản đồ tương tác (`MapEmbed`) trên thanh trượt hoặc bảng kết quả.',
+        input: 'Zustand State thay đổi',
+        output: 'Giao diện hiển thị trực quan các thẻ Carousel kèm bản đồ định vị.'
+      },
+      'ai-context': {
+        title: 'Context & Intent Detection',
+        color: 'var(--color-agent)',
+        source: 'be/agents/orchestrator.py:L228',
+        desc: 'Nhằm tăng tốc độ phản hồi và giảm chi phí API, hệ thống tiến hành bóc tách thô (Regex) trước tiên. Sau đó, Orchestrator gọi Gemini để phân tích kỹ ý đồ người dùng. Gemini sẽ trả về kết quả qua tool `detect_intent` bao gồm: intent (food_only, restaurant_only, food_and_restaurant, v.v.), confidence, và danh sách các thông tin còn thiếu.',
+        input: 'Tin nhắn: "Tôi mệt quá, muốn ăn món gì ấm dưới 60k gần đây"',
+        output: 'intent: "food_and_restaurant"\nconfidence: 0.98\nmissing_context: []'
+      },
+      'ai-food-agent': {
+        title: 'Food Agent Pipeline',
+        color: 'var(--color-agent)',
+        source: 'be/agents/food_agent.py',
+        desc: 'Agent chuyên trách tìm kiếm món ăn. Agent này gọi Gemini kết hợp với bộ công cụ `food_tools`. Đầu tiên, nếu có toạ độ định vị, nó sẽ gọi tool `get_weather` để biết thời tiết (ví dụ: lạnh/mưa sẽ ưu tiên cháo/lẩu). Sau đó nó kích hoạt tool `search_food_by_criteria` để tạo ra danh sách món ăn tối ưu nhất dạng JSON.',
+        input: 'UserContext (Budget, Allergies, Weather, Time)',
+        output: '{\n  "foods": [\n    {"name": "Cháo gà hành gừng", "estimated_price": 45000, ...},\n    {"name": "Bún riêu cua", "estimated_price": 55000, ...}\n  ],\n  "food_names": ["Cháo gà hành gừng", "Bún riêu cua"]\n}'
+      },
+      'ai-rest-agent': {
+        title: 'Restaurant Agent Pipeline',
+        color: 'var(--color-agent)',
+        source: 'be/agents/restaurant_agent.py',
+        desc: 'Agent tìm kiếm quán ăn. Nhận danh sách các món ăn đã chọn từ Food Agent cùng toạ độ GPS. Nó gọi Gemini kết hợp bộ công cụ `restaurant_tools`. AI thực hiện gọi `search_nearby_restaurants` (Google Places API) để lấy danh sách quán. Sau đó, nó gọi tool `rank_restaurants` để tính toán sắp xếp quán phù hợp nhất.',
+        input: 'food_names: ["Cháo gà", "Bún riêu"], location: {lat, lng}',
+        output: '{\n  "restaurants": [\n    {"name": "Quán Cháo Gà Bà Chiểu", "score": 0.92, ...},\n    {"name": "Bún Riêu Cua Thanh Hồng", "score": 0.88, ...}\n  ]\n}'
+      },
+      'ai-final': {
+        title: 'Final Synthesis Stream',
+        color: 'var(--color-sse)',
+        source: 'be/agents/orchestrator.py:L723',
+        desc: 'Sau khi nhận đầy đủ dữ liệu món ăn từ Food Agent và quán ăn từ Restaurant Agent, Orchestrator xây dựng một `final_prompt`. Nó gửi toàn bộ lịch sử trò chuyện cùng các dữ liệu này lên Gemini lần cuối với tuỳ chọn `stream=True` để Gemini tổng hợp và viết một câu trả lời mạch lạc, cá nhân hoá cho người dùng.',
+        input: 'final_prompt chứa thông tin món, quán ăn, và câu hỏi của user',
+        output: 'Stream từng từ (text delta) gửi trực tiếp về phía Client.'
+      },
+      'ai-ask-context': {
+        title: 'Interrupt: ask_user_for_context',
+        color: 'var(--color-warning)',
+        source: 'be/tools/executor.py',
+        desc: 'Trong quá trình xử lý, nếu một tham số bắt buộc bị thiếu (ví dụ: người dùng yêu cầu tìm quán ăn nhưng vị trí địa lý GPS chưa được bật và không điền vị trí thủ công), Agent sẽ lập tức dừng luồng xử lý và gọi tool `ask_user_for_context`. Server sẽ gửi event `ask_context` kèm câu hỏi làm rõ và ngắt kết nối để đợi phản hồi tiếp theo của người dùng.',
+        input: 'Thiếu thông tin vị trí GPS hoặc ngân sách quá mập mờ',
+        output: 'event: ask_context\ndata: {"field": "location", "message": "Bạn cho mình xin vị trí nhé!"}'
+      },
+      'tool-intent': {
+        title: 'Tool: detect_intent',
+        color: 'var(--color-agent)',
+        source: 'be/artifacts/tools.yaml:L3',
+        desc: 'Được sử dụng bởi Orchestrator ở đầu luồng. AI sẽ phân tích nhu cầu xem có cần tìm món ăn, tìm quán, cào tin tức hot trend hay chỉ là câu hỏi thông tin bình thường.',
+        input: '{\n  "intent": "food_and_restaurant",\n  "confidence": 0.95,\n  "missing_context": []\n}',
+        output: 'Chuyển hướng luồng xử lý tới Agent chuyên biệt tương ứng.'
+      },
+      'tool-weather': {
+        title: 'Tool: get_weather',
+        color: 'var(--color-primary)',
+        source: 'be/tools/handlers/weather.py',
+        desc: 'Gọi API OpenWeatherMap để kiểm tra thời tiết thời gian thực tại vị trí người dùng. Trả về tình trạng: "hot" (nóng >32°C), "cold" (lạnh <20°C), "rainy" (mưa) hoặc "normal".',
+        input: '{"lat": 10.7626, "lng": 106.6601}',
+        output: '{"condition": "hot", "temp_c": 33.5, "description": "Trời nắng nóng gay gắt"}'
+      },
+      'tool-food-search': {
+        title: 'Tool: search_food_by_criteria',
+        color: 'var(--color-primary)',
+        source: 'be/tools/handlers/food_search.py',
+        desc: 'Sử dụng mô hình ngôn ngữ lớn (Gemini call_json) để gợi ý các món ăn phù hợp với ngữ cảnh cụ thể: giờ giấc trong ngày (sáng, trưa, tối), ngân sách của người dùng, thời tiết hiện tại và các lưu ý dị ứng.',
+        input: '{\n  "meal_time": "dinner",\n  "budget": 60000,\n  "weather": "hot",\n  "allergies": ["đậu phộng"]\n}',
+        output: '{"foods": [ FoodSuggestion ]}'
+      },
+      'tool-trend': {
+        title: 'Tool: crawl_trending_foods',
+        color: 'var(--color-success)',
+        source: 'be/services/scraper.py:L7',
+        desc: 'Truy cập internet thời gian thực để tìm kiếm các xu hướng ẩm thực mới nhất mà cơ sở dữ liệu cũ của LLM chưa cập nhật. Nó thực hiện tìm kiếm Google Search và phân tích cấu trúc HTML để bóc tách thông tin.',
+        input: '{"query": "hot trend"}',
+        output: '{"query": "hot trend", "source": "google_search_scrape", "results": ["Cà phê muối", "Bánh đồng xu phô mai"]}'
+      },
+      'tool-places': {
+        title: 'Tool: search_nearby_restaurants',
+        color: 'var(--color-primary)',
+        source: 'be/tools/handlers/places.py',
+        desc: 'Thực hiện gọi API Google Places (Nearby Search) để lấy danh sách 10-20 quán ăn gần vị trí toạ độ GPS của người dùng có bán các từ khóa món ăn mong muốn.',
+        input: '{\n  "lat": 10.7626,\n  "lng": 106.6601,\n  "query": "Bún riêu",\n  "radius": 2000\n}',
+        output: 'Danh sách các quán ăn thô lấy từ Google Maps API.'
+      },
+      'tool-ranking': {
+        title: 'Tool: rank_restaurants',
+        color: 'var(--color-primary)',
+        source: 'be/tools/handlers/ranking.py',
+        desc: 'Chấm điểm xếp hạng tất cả quán ăn thô nhận được từ Google Places API để chọn ra top 3-5 quán ăn tốt nhất cho người dùng. Công thức chuẩn hoá:\n<code>Score = food_match*0.3 + rating*0.25 + distance*0.2 + price*0.15 + reviews*0.1</code>',
+        input: 'list[raw_restaurants], food_names, top_n',
+        output: 'list[Restaurant] đã sắp xếp giảm dần theo điểm số score.'
+      },
+      'tool-reviews': {
+        title: 'Tool: crawl_restaurant_reviews',
+        color: 'var(--color-success)',
+        source: 'be/services/scraper.py:L46',
+        desc: 'Khi người dùng muốn xem đánh giá của một quán ăn cụ thể, tool này sẽ cào 3 bài đánh giá/review thực tế trên các trang blog hoặc mạng xã hội thông qua kết quả tìm kiếm Google Search để cung cấp cho người dùng.',
+        input: '{"restaurant_name": "Cơm tấm Ba Ghiền"}',
+        output: '{"reviews": ["Sườn nướng rất ngon...", "Không gian hơi chật...", "Giá hơi cao nhưng đáng thử..."]}'
+      },
+      'tool-ask': {
+        title: 'Tool: ask_user_for_context',
+        color: 'var(--color-warning)',
+        source: 'be/tools/executor.py',
+        desc: 'Được gọi khi bất kỳ Agent nào phát hiện thiếu thông tin cốt lõi (vị trí GPS khi tìm quán). Trả dữ liệu dạng yêu cầu nhập thông tin bổ sung để dừng luồng xử lý và hiển thị câu hỏi làm rõ trên giao diện.',
+        input: '{"field": "location", "message": "Mình cần vị trí để tìm quán ăn nhé!"}',
+        output: '{"ask": true, "field": "location", "message": "..."}'
+      }
+    };
+
+    function showDetail(key) {
+      const data = detailsData[key];
+      if (!data) return;
+
+      const detailBox = document.getElementById('detail-box');
+      detailBox.innerHTML = `
+        <h3 style="color: ${data.color}"><span style="background-color: ${data.color}"></span> ${data.title}</h3>
+        <div class="details-row">
+          <div class="details-label">Vị trí mã nguồn</div>
+          <div class="details-value" style="font-family: 'Fira Code', monospace; color: #60a5fa;">${data.source}</div>
+        </div>
+        <div class="details-row">
+          <div class="details-label">Mô tả hoạt động</div>
+          <div class="details-value">${data.desc}</div>
+        </div>
+        <div class="details-row">
+          <div class="details-label">Đầu vào (Input parameter / State)</div>
+          <div class="details-code">${data.input}</div>
+        </div>
+        <div class="details-row">
+          <div class="details-label">Đầu ra (Output / Side effect)</div>
+          <div class="details-code" style="color: #60a5fa;">${data.output}</div>
+        </div>
+      `;
+    }
+
+    function switchTab(evt, tabId) {
+      // Hide all tabs
+      const tabContents = document.getElementsByClassName('tab-content');
+      for (let i = 0; i < tabContents.length; i++) {
+        tabContents[i].classList.remove('active');
+      }
+
+      // Remove active class from buttons
+      const tabBtns = document.getElementsByClassName('tab-btn');
+      for (let i = 0; i < tabBtns.length; i++) {
+        tabBtns[i].classList.remove('active');
+      }
+
+      // Show current tab & add active to button
+      document.getElementById(tabId).classList.add('active');
+      evt.currentTarget.classList.add('active');
+    }
+
+    // Interactive Simulator Logic
+    const scenarios = {
+      happy_path: [
+        { type: 'fe', node: 'node-e2e-1', text: '[FE] Người dùng gửi tin nhắn: "Tôi mệt quá, muốn ăn món gì ấm dưới 60k gần đây". Kích hoạt định vị vị trí thành công (10.7626, 106.6601).' },
+        { type: 'fe', node: 'node-e2e-2', text: '[FE] useChat.ts tạo khung tin nhắn trợ lý trống. Gọi API kết nối SSE stream qua POST /api/chat.' },
+        { type: 'be', node: 'node-e2e-3', text: '[BE] routers/chat.py tiếp nhận yêu cầu, thiết lập Header text/event-stream và chạy Orchestrator.' },
+        { type: 'be', node: 'node-ai-step1', text: '[BE] Orchestrator phân tích ngữ cảnh: lọc được ngân sách <60.000đ. Gọi Gemini detect_intent -> Trả về intent="food_and_restaurant".' },
+        { type: 'sse', node: 'node-e2e-5', text: '[SSE event: thinking] "Đang phân tích yêu cầu của bạn..." gửi về Client.' },
+        { type: 'be', node: 'node-ai-step2', text: '[BE] Food Agent khởi động. Gọi OpenWeatherMap lấy thời tiết -> 33°C (Nắng nóng). Gọi search_food_by_criteria lọc các món dễ tiêu dưới 60k -> Gợi ý: Bún riêu cua, Cháo gà hành gừng.' },
+        { type: 'sse', node: 'node-e2e-5', text: '[SSE event: food_results] Gửi cấu trúc JSON 2 món ăn được đề xuất về Client.' },
+        { type: 'be', node: 'node-ai-step3', text: '[BE] Restaurant Agent khởi động. Gọi Google Places API tìm quán bán "Bún riêu", "Cháo gà" trong bán kính 2km. Gọi tool rank_restaurants chấm điểm và sắp xếp quán phù hợp.' },
+        { type: 'sse', node: 'node-e2e-5', text: '[SSE event: restaurant_results] Gửi danh sách 3 quán ăn gần nhất và điểm xếp hạng chi tiết về Client.' },
+        { type: 'be', node: 'node-ai-step4', text: '[BE] Orchestrator gọi Gemini lần cuối (stream=True) kết hợp thông tin món & quán để soạn lời khuyên.' },
+        { type: 'sse', node: 'node-e2e-5', text: '[SSE event: text] Stream từng cụm từ: "Mình hiểu bạn đang mệt... Gợi ý bún riêu... Quán Thanh Hồng..."' },
+        { type: 'sse', node: 'node-e2e-5', text: '[SSE event: done] Trả về 3 câu hỏi gợi ý tiếp theo (follow_up_suggestions). Đóng kết nối stream.' },
+        { type: 'fe', node: 'node-e2e-6', text: '[FE] Nhận done. Cập nhật Zustand store. Hiển thị FoodCard, RestaurantCard và chấm vị trí các quán ăn trên MapEmbed.' }
+      ],
+      trend_path: [
+        { type: 'fe', node: 'node-e2e-1', text: '[FE] Người dùng hỏi: "Có món ăn nào đang hot trend của giới trẻ vậy?".' },
+        { type: 'fe', node: 'node-e2e-2', text: '[FE] useChat.ts kết nối SSE stream qua POST /api/chat.' },
+        { type: 'be', node: 'node-ai-step1', text: '[BE] Orchestrator phát hiện từ khóa "trend/hot" -> intent="food_only". Kích hoạt Food Agent.' },
+        { type: 'sse', node: 'node-e2e-5', text: '[SSE event: thinking] "Đang cào món ăn hot trend từ internet (crawl_trending_foods)..."' },
+        { type: 'be', node: 'node-ai-step2', text: '[BE] Food Agent kích hoạt tool crawl_trending_foods. Gọi service/scraper.py thực hiện tìm kiếm Google Search để cào thông tin thực tế.' },
+        { type: 'be', node: 'node-ai-step2', text: '[BE] Scraper bóc tách được các cụm từ về: "Cà phê muối", "Trà chanh giã tay", "Bánh đồng xu phô mai".' },
+        { type: 'sse', node: 'node-e2e-5', text: '[SSE event: food_results] Gửi danh sách các món trend cào được về Client.' },
+        { type: 'sse', node: 'node-e2e-5', text: '[SSE event: text] Stream lời thoại giới thiệu về nguồn gốc và độ hot của các món ăn trend vừa tìm kiếm.' },
+        { type: 'sse', node: 'node-e2e-5', text: '[SSE event: done] Đóng stream.' },
+        { type: 'fe', node: 'node-e2e-6', text: '[FE] Hiển thị danh sách các món hot trend lên UI.' }
+      ],
+      review_path: [
+        { type: 'fe', node: 'node-e2e-1', text: '[FE] Người dùng hỏi: "Cho tôi xem review quán cơm tấm Ba Ghiền".' },
+        { type: 'fe', node: 'node-e2e-2', text: '[FE] Khởi tạo SSE stream.' },
+        { type: 'be', node: 'node-ai-step1', text: '[BE] Orchestrator nhận diện từ khóa "review" -> intent="restaurant_only". Kích hoạt Restaurant Agent.' },
+        { type: 'sse', node: 'node-e2e-5', text: '[SSE event: thinking] "Đang cào đánh giá cho cơm tấm Ba Ghiền từ các blog ẩm thực..."' },
+        { type: 'be', node: 'node-ai-step3', text: '[BE] Restaurant Agent kích hoạt tool crawl_restaurant_reviews. Google Search cào các đoạn trích đánh giá.' },
+        { type: 'sse', node: 'node-e2e-5', text: '[SSE event: text] Trả về tổng hợp 3 review thực tế từ cộng đồng: sườn dày dặn béo ngậy, quán đông giờ cao điểm...' },
+        { type: 'sse', node: 'node-e2e-5', text: '[SSE event: done] Kết thúc truyền tải.' }
+      ],
+      no_location: [
+        { type: 'fe', node: 'node-e2e-1', text: '[FE] Người dùng hỏi: "Tìm cho mình quán bún chả ngon". Vị trí GPS của thiết bị đang bị tắt.' },
+        { type: 'fe', node: 'node-e2e-2', text: '[FE] Gửi tin nhắn và kết nối SSE.' },
+        { type: 'be', node: 'node-ai-step1', text: '[BE] Orchestrator detect intent -> intent="restaurant_only". Kích hoạt Restaurant Agent.' },
+        { type: 'be', node: 'node-ai-step3', text: '[BE] Restaurant Agent phát hiện context.location=None. Đây là thông tin bắt buộc để tìm quán.' },
+        { type: 'be', node: 'node-ai-clarify', text: '[BE] Kích hoạt tool ask_user_for_context cho field="location". Ngắt kết nối xử lý ngay lập tức.' },
+        { type: 'sse', node: 'node-e2e-5', text: '[SSE event: ask_context] Trả về: {"field": "location", "message": "Bạn có thể cho tôi biết bạn đang ở đâu không? Tôi cần vị trí để tìm quán bún chả gần bạn nhé!"}' },
+        { type: 'fe', node: 'node-e2e-6', text: '[FE] Nhận event ask_context. Render thông báo đỏ hoặc popup yêu cầu người dùng cho phép GPS hoặc nhập thủ công địa chỉ.' }
+      ]
+    };
+
+    let simInterval = null;
+    let simStep = 0;
+    let currentScenario = 'happy_path';
+
+    function loadScenario() {
+      resetSimulation();
+      currentScenario = document.getElementById('scenario-selector').value;
+      const consoleOutput = document.getElementById('console-output');
+      consoleOutput.innerHTML = `<span class="console-line line-info">&gt; Đã tải kịch bản: ${currentScenario.toUpperCase()}. Bấm Chạy giả lập để bắt đầu.</span>`;
+    }
+
+    function runSimulation() {
+      resetSimulation();
+      const steps = scenarios[currentScenario];
+      const consoleOutput = document.getElementById('console-output');
+      const runBtn = document.getElementById('btn-run');
+      
+      runBtn.disabled = true;
+      runBtn.innerText = "⏳ Đang chạy...";
+      consoleOutput.innerHTML = "";
+
+      simInterval = setInterval(() => {
+        if (simStep >= steps.length) {
+          clearInterval(simInterval);
+          runBtn.disabled = false;
+          runBtn.innerText = "⚡ Chạy giả lập";
+          
+          // Add done line
+          const finalLine = document.createElement('span');
+          finalLine.className = 'console-line line-success';
+          finalLine.innerText = `> [Hệ thống] Hoàn thành giả lập kịch bản!`;
+          consoleOutput.appendChild(finalLine);
+          consoleOutput.scrollTop = consoleOutput.scrollHeight;
+          return;
+        }
+
+        const step = steps[simStep];
+        
+        // Highlight active node
+        // Remove active class from all nodes first
+        const allNodes = document.querySelectorAll('.flow-node, .flow-step-block');
+        allNodes.forEach(node => node.classList.remove('active'));
+
+        const activeNode = document.getElementById(step.node);
+        if (activeNode) {
+          activeNode.classList.add('active');
+          activeNode.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          
+          // Auto display details of that node on click simulation
+          // Map step node to appropriate detail key
+          let detailKey = '';
+          if (step.node === 'node-e2e-1') detailKey = 'e2e-fe-input';
+          else if (step.node === 'node-e2e-2') detailKey = 'e2e-fe-store';
+          else if (step.node === 'node-e2e-3') detailKey = 'e2e-be-router';
+          else if (step.node === 'node-e2e-4') detailKey = 'e2e-be-orch';
+          else if (step.node === 'node-e2e-5') detailKey = 'e2e-sse-stream';
+          else if (step.node === 'node-e2e-6') detailKey = 'e2e-fe-render';
+          else if (step.node === 'node-ai-step1') detailKey = 'ai-context';
+          else if (step.node === 'node-ai-step2') detailKey = 'ai-food-agent';
+          else if (step.node === 'node-ai-step3') detailKey = 'ai-rest-agent';
+          else if (step.node === 'node-ai-step4') detailKey = 'ai-final';
+          else if (step.node === 'node-ai-clarify') detailKey = 'ai-ask-context';
+
+          if (detailKey) showDetail(detailKey);
+        }
+
+        // Print output to console
+        const line = document.createElement('span');
+        line.className = `console-line line-${step.type}`;
+        line.innerText = `> ${step.text}`;
+        consoleOutput.appendChild(line);
+        consoleOutput.scrollTop = consoleOutput.scrollHeight;
+
+        simStep++;
+      }, 1500);
+    }
+
+    function resetSimulation() {
+      if (simInterval) {
+        clearInterval(simInterval);
+      }
+      simStep = 0;
+      const runBtn = document.getElementById('btn-run');
+      runBtn.disabled = false;
+      runBtn.innerText = "⚡ Chạy giả lập";
+      
+      const allNodes = document.querySelectorAll('.flow-node, .flow-step-block');
+      allNodes.forEach(node => node.classList.remove('active'));
+      
+      const consoleOutput = document.getElementById('console-output');
+      consoleOutput.innerHTML = `<span class="console-line line-info">&gt; Đã reset giả lập. Nhấn nút để bắt đầu.</span>`;
+    }
+
+    // Default detailed view on load
+    window.onload = function() {
+      showDetail('e2e-fe-input');
+    }
+  </script>
+</body>
+</html>

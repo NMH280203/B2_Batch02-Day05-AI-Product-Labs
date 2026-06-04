@@ -1,0 +1,41 @@
+**✅ Dưới đây là 10 câu hỏi (test prompts) CHUẨN và KHÓ** dành cho app AI gợi ý món ăn + địa điểm. Tôi đã thiết kế chúng theo mức độ thử thách tăng dần, tập trung vào các case thực tế khó xử lý của AI.
+
+### **Top 10 Test Prompts Khó**
+
+**1. Rất khó (Multi-constraint + Conflict)**
+"Tôi bị dị ứng hải sản, gluten và lactose. Hôm nay trời mưa, tôi muốn ăn món Việt Nam ấm nóng, healthy nhưng vẫn ngon miệng, ngân sách tối đa 150k/người, ở quận Bình Thạnh hoặc quận 1, TP.HCM. Gợi ý 3 món + 2 quán phù hợp nhất."
+
+**2. Nhóm người phức tạp**
+"Tối nay 6 người (2 trẻ em 5-7 tuổi, 1 người lớn tuổi kén ăn, 2 người ăn kiêng giảm cân, 1 người thích cay). Chúng tôi muốn ăn buffet hoặc lẩu, không quá đắt (dưới 250k/người), khu vực quận 7 hoặc Phú Mỹ Hưng. Gợi ý chi tiết."
+
+**3. Tâm trạng + Occasion + Yêu cầu sáng tạo**
+"Tôi vừa tan vỡ tình cảm, muốn ăn một mình để comfort food nhưng không muốn đồ chiên nhiều dầu và ngọt. Muốn không khí yên tĩnh, hơi buồn một chút, view mưa hoặc đèn vàng. Quận 3 hoặc quận 10, dưới 200k."
+
+**4. Ẩm thực Fusion + Sở thích cao cấp**
+"Tôi muốn thử món Việt Nam fusion với ẩm thực Nhật hoặc Hàn, fine dining hoặc semi-fine, không khí sang trọng, phù hợp hẹn hò. Ngân sách khoảng 800k - 1.2 triệu/người. Khu vực trung tâm Sài Gòn."
+
+**5. Hạn chế địa lý + Thời gian**
+"Tôi đang ở sân bay Tân Sơn Nhất, transit 5 tiếng, muốn ra ngoài ăn thật ngon món Việt Nam chính gốc nhưng phải quay lại sân bay trước 21h30. Gợi ý món và quán gần nhất nhưng chất lượng cao."
+
+**6. Ăn kiêng đặc biệt + Mong muốn "ngon miệng"**
+"Tôi đang ăn kiêng Low-carb + Keto nghiêm ngặt 2 tuần nay. Nhưng hôm nay thèm cơm tấm hoặc bún quá. Làm sao để thỏa mãn cơn thèm mà vẫn không phá kiêng? Gợi ý sáng tạo + quán ở TP.HCM."
+
+**7. Khách du lịch nước ngoài**
+"I'm a foreigner living in Hanoi for 2 weeks. I love spicy food but can't eat very sweet or fermented fish sauce taste. I want authentic Vietnamese food but beginner-friendly. Suggest 3 best options in Hoan Kiem or Tay Ho under 300k."
+
+**8. So sánh + Phân tích sâu**
+"Tôi đang phân vân giữa món lẩu và nướng. Hôm nay trời lạnh, muốn ăn no, không ngấy, có chỗ ngồi thoải mái, phục vụ nhanh. So sánh giúp tôi nên chọn lẩu Thái, lẩu bò, hay nướng Hàn ở quận Đống Đa (Hà Nội)."
+
+**9. Yêu cầu cực kỳ chi tiết + Context cá nhân**
+"Tôi 28 tuổi, làm văn phòng, đang tăng cân nên muốn healthy. Nhưng cuối tuần này muốn ăn xả láng một bữa. Thích vị chua cay, thích rau nhiều, ghét đồ chiên giòn. Đi một mình, thích chỗ có thể ngồi lâu đọc sách. Quận 1 hoặc quận 4."
+
+**10. Siêu khó (Multi-layer + Edge case)**
+"Tôi là người miền Bắc mới vào Sài Gòn, không quen đồ ăn ngọt và nhiều dầu. Muốn tìm quán ăn gia đình kiểu miền Bắc hoặc trung, món ăn đậm đà, giá bình dân (80-150k), phục vụ thân thiện, sạch sẽ, có chỗ đậu xe máy. Ưu tiên gần khu vực Thảo Điền hoặc quận 2. Nếu không có thì gợi ý thay thế gần nhất."
+
+---
+
+### **Gợi ý cách dùng:**
+- Test cả **tiếng Việt** và **tiếng Anh** (nếu app hỗ trợ đa ngôn ngữ).
+- Kết hợp test **temperature** (độ sáng tạo) khác nhau.
+- Kiểm tra khả năng **xử lý conflict** (ví dụ: vừa healthy vừa ngon, vừa rẻ vừa chất lượng).
+- Kiểm tra output có **cụ thể** (tên quán, giá khoảng, lý do gợi ý) hay không.

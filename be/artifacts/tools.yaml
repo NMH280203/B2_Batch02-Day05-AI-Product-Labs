@@ -1,0 +1,174 @@
+tools:
+  # Orchestrator tools
+  - name: detect_intent
+    description: "Phân tích ý định người dùng từ tin nhắn và ngữ cảnh."
+    parameters:
+      type: object
+      properties:
+        intent:
+          type: string
+          enum: [food_only, restaurant_only, food_and_restaurant, food_info, clarify]
+          description: "Loại ý định chính"
+        confidence:
+          type: number
+          description: "Độ tin cậy 0–1"
+        missing_context:
+          type: array
+          items:
+            type: string
+          description: "Các field còn thiếu"
+      required: [intent, confidence, missing_context]
+
+  - name: run_food_agent
+    description: "Kích hoạt food agent tìm món phù hợp."
+    parameters:
+      type: object
+      properties:
+        reason:
+          type: string
+          description: "Lý do"
+      required: [reason]
+
+  - name: run_restaurant_agent
+    description: "Kích hoạt restaurant agent tìm quán ăn."
+    parameters:
+      type: object
+      properties:
+        food_names:
+          type: array
+          items:
+            type: string
+          description: "Tên các món từ food agent"
+        reason:
+          type: string
+          description: "Lý do"
+      required: [food_names, reason]
+
+  # Food & Restaurant common/specific tools
+  - name: get_weather
+    description: "Lấy thời tiết hiện tại theo vị trí."
+    parameters:
+      type: object
+      properties:
+        lat:
+          type: number
+          description: "Vĩ độ"
+        lng:
+          type: number
+          description: "Kinh độ"
+      required: [lat, lng]
+
+  - name: search_food_by_criteria
+    description: "Gợi ý món ăn theo tiêu chí người dùng."
+    parameters:
+      type: object
+      properties:
+        meal_time:
+          type: string
+          description: "breakfast/lunch/dinner/snack"
+        budget:
+          type: number
+          description: "Ngân sách (VND)"
+        preferences:
+          type: array
+          items:
+            type: string
+          description: "Sở thích"
+        allergies:
+          type: array
+          items:
+            type: string
+          description: "Dị ứng/kiêng kỵ"
+        weather:
+          type: string
+          enum: [hot, cold, rainy, normal]
+          description: "Thời tiết"
+        purpose:
+          type: string
+          description: "family/date/friends/work/solo"
+      required: [weather]
+
+  - name: ask_user_for_context
+    description: "Hỏi người dùng thêm thông tin về vị trí hoặc yêu cầu ăn uống."
+    parameters:
+      type: object
+      properties:
+        field:
+          type: string
+          description: "Field cần hỏi"
+        message:
+          type: string
+          description: "Câu hỏi tiếng Việt"
+      required: [field, message]
+
+  - name: crawl_trending_foods
+    description: "Cào các món ăn hot trend mới nhất từ internet."
+    parameters:
+      type: object
+      properties:
+        query:
+          type: string
+          description: "Từ khóa tìm kiếm món ăn hoặc phong cách ẩm thực"
+      required: [query]
+
+  - name: search_nearby_restaurants
+    description: "Tìm quán ăn gần vị trí người dùng."
+    parameters:
+      type: object
+      properties:
+        lat:
+          type: number
+          description: "Vĩ độ"
+        lng:
+          type: number
+          description: "Kinh độ"
+        query:
+          type: string
+          description: "Từ khóa"
+        radius:
+          type: number
+          description: "Bán kính (mét)"
+        budget:
+          type: number
+          description: "Ngân sách (VND)"
+      required: [lat, lng, query]
+
+  - name: get_restaurant_detail
+    description: "Chi tiết một quán theo place_id."
+    parameters:
+      type: object
+      properties:
+        place_id:
+          type: string
+          description: "Google Place ID"
+      required: [place_id]
+
+  - name: rank_restaurants
+    description: "Xếp hạng quán theo độ phù hợp."
+    parameters:
+      type: object
+      properties:
+        restaurants:
+          type: array
+          items:
+            type: object
+          description: "Danh sách quán"
+        food_names:
+          type: array
+          items:
+            type: string
+          description: "Tên món để match"
+        top_n:
+          type: number
+          description: "Số quán trả về"
+      required: [restaurants, food_names]
+
+  - name: crawl_restaurant_reviews
+    description: "Cào các bài đánh giá, review về quán ăn từ các trang cộng đồng."
+    parameters:
+      type: object
+      properties:
+        restaurant_name:
+          type: string
+          description: "Tên quán ăn cần cào reviews"
+      required: [restaurant_name]
