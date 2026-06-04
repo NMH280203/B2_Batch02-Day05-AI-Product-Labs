@@ -15,26 +15,28 @@ Thin SPEC không phải PRD đầy đủ. Đây là bản cam kết đủ rõ đ
 
 | Evidence | Nguồn | User/pain nói lên điều gì? | SPEC phải đổi gì? |
 |---|---|---|---|
-| Search "healthy" lệch budget | *\[Self-use — link screenshot\]* | Keyword thiếu ngữ cảnh | `suggest_dishes` multi-slot |
-| "Không biết ăn gì" | *\[Review URL\]* | Paralysis | Orchestrator + clarify |
-| Có món trong đầu, chưa chọn quán | *\[Self-use note\]* | Quán là bước 2 | `suggest_restaurants(dish_id)` |
-| "Gần X" là một phần câu | *\[Phỏng vấn / self-use\]* | Không bắt buộc GPS | `resolve_location` conditional |
+| "Không biết ăn gì" | *\[https://www.threads.com/@_nhwqynf/post/DZHo21vAX1a, https://www.threads.com/@lucif.th/post/DXZSBkVkTCB\]* | Paralysis | Orchestrator + clarify |
+| Có món trong đầu, chưa chọn quán | ![Có món chưa chọn quán](./bangChungMonToQuan.jpg) | Quán là bước 2 | `suggest_restaurants(dish_id)` |
+| "Gần X" là một phần câu | *\[https://www.threads.com/@riwhiunyyyy/post/DWQPEiDEYlV\]* | Không bắt buộc GPS | `resolve_location` conditional |
 | Chatbot chung hay hallucination | Competitor / analog | Cần catalog + tool | `be/data/*.json` + handlers |
 
 ## 3. Pain statement
 
-```text
-User người đặt đồ ăn qua app thường xuyên đang gặp khó khi chuyển từ
-"ngữ cảnh bữa ăn tôi muốn" (mood, budget, dietary, số người, gần hay không…)
-sang "món cụ thể và quán có món đó",
-
-vì app chủ yếu search keyword/filter rời rạc và gợi ý theo lịch sử đơn cũ,
-không có orchestrator hiểu intent và không gợi ý theo thứ tự món → quán,
-
-dẫn tới xem mãi không đặt, gợi ý lệch (healthy đắt, chay sai), hoặc chọn quán không có món phù hợp.
-
-Bằng chứng chính là *\[self-use observation + URL review + ngày phỏng vấn \*/\*/2026\]*.
-```
+> User người đặt đồ ăn qua app thường xuyên đang gặp khó khi chuyển từ
+> "ngữ cảnh bữa ăn tôi muốn" (mood, budget, dietary, số người, gần hay không…)
+> sang "món cụ thể và quán có món đó",
+>
+> vì app chủ yếu search keyword/filter rời rạc và gợi ý theo lịch sử đơn cũ
+> (repeat order — [Grab tech blog, 2022](https://www.grab.com/inside-grab/stories/personalising-food-recommendations-on-grabfood)),
+> không có orchestrator hiểu intent và không gợi ý theo thứ tự món → quán,
+>
+> dẫn tới lướt trung bình 17 phút chưa đặt và 74% vào app không biết ăn gì
+> ([Grab internal data, 2022](https://www.grab.com/inside-grab/stories/personalising-food-recommendations-on-grabfood)),
+> gợi ý lệch mood/dietary
+> ([Kenh14 user review, 04/2026](https://kenh14.vn/phat-hien-cua-nguoi-luoi-khi-song-tren-app-be-shopee-grab-moi-app-1-nhiem-vu-toi-van-an-ngon-di-tien-ma-chang-ton-may-215260418095218817.chn)),
+> hoặc chọn quán không có món phù hợp.
+>
+> *Bằng chứng: [Grab tech blog (2022)](https://www.grab.com/inside-grab/stories/personalising-food-recommendations-on-grabfood) + [Kenh14 user review (04/2026)](https://kenh14.vn/phat-hien-cua-nguoi-luoi-khi-song-tren-app-be-shopee-grab-moi-app-1-nhiem-vu-toi-van-an-ngon-di-tien-ma-chang-ton-may-215260418095218817.chn) + ngày phỏng vấn \*/\*/2026*
 
 ## 4. Build slice
 
